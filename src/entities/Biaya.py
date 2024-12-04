@@ -1,32 +1,46 @@
 class Biaya:
-    def __init__(self, biaya_id = None, biaya_nilai = None, proyek_id= None, tugas_id = None):
-        self.biaya_id = biaya_id
-        self.biaya_nilai = biaya_nilai
-        self.proyek_id = proyek_id
-        self.tugas_id = tugas_id
+    def __init__(self,  idBiaya = None, namaBarangBiaya = "", keteranganBiaya = "",  hargaSatuanBiaya = None, quantityBiaya = None, totalBiaya = None):
+        self.idBiaya = idBiaya
+        self.namaBarangBiaya = namaBarangBiaya
+        self.keteranganBiaya = keteranganBiaya
+        self.hargaSatuanBiaya = hargaSatuanBiaya
+        self.quantityBiaya = quantityBiaya
+        self.totalBiaya = totalBiaya
         
-    def get_biaya_id(self):
-        return self.biaya_id
+    def get_idBiaya(self):
+        return self.idBiaya
     
-    def set_biaya_id(self, biaya_id):
-        self.biaya_id = biaya_id
+    def set_idBiaya(self, idBiaya):
+        self.idBiaya = idBiaya
 
-    def get_biaya_nilai(self):
-        return self.biaya_nilai
+    def get_namaBarangBiaya(self):
+        return self.namaBarangBiaya
     
-    def set_biaya_nilai(self, biaya_nilai):
-        self.biaya_nilai = biaya_nilai
+    def set_namaBarangBiaya(self, namaBarangBiaya):
+        self.namaBarangBiaya = namaBarangBiaya
 
-    def get_proyek_id(self):
-        return self.proyek_id
+    def get_keteranganBiaya(self):
+        return self.keteranganBiaya
     
-    def set_proyek_id(self, proyek_id):
-        self.proyek_id = proyek_id
+    def set_keteranganBiaya(self, keteranganBiaya):
+        self.keteranganBiaya = keteranganBiaya
     
-    def get_tugas_id(self):
-        return self.tugas_id
+    def get_hargaSatuanBiaya(self):
+        return self.hargaSatuanBiaya
     
-    def set_tugas_id(self, tugas_id):
-        self.tugas_id_id = tugas_id
+    def set_hargaSatuanBiaya(self, hargaSatuanBiaya):
+        self.hargaSatuanBiaya = hargaSatuanBiaya
+
+    def get_quantityBiaya(self):
+        return self.quantityBiaya
+    
+    def set_quantityBiaya(self, quantityBiaya):
+        self.quantityBiaya = quantityBiaya
+
+    def get_totalBiaya(self):
+        return self.totalBiaya
+    
+    def set_totalBiaya(self, totalBiaya):
+        self.totalBiaya = totalBiaya
     
         
