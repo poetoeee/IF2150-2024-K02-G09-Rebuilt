@@ -1,5 +1,5 @@
 class Biaya:
-    def __init__(self,  idBiaya = None, namaBarangBiaya = "", keteranganBiaya = "",  hargaSatuanBiaya = None, quantityBiaya = None, totalBiaya = None):
+    def __init__(self,  idBiaya = None, namaBarangBiaya = "", keteranganBiaya = "",  hargaSatuanBiaya = None, quantityBiaya = None, totalBiaya = None, idTugasOfBiaya = None):
         self.idBiaya = idBiaya
         self.namaBarangBiaya = namaBarangBiaya
         self.keteranganBiaya = keteranganBiaya
