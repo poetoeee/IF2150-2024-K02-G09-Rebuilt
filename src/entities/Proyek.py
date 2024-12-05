@@ -63,3 +63,5 @@ class Proyek:
 
     def set_statusProyek(self, statusProyek):
         self.statusProyek = statusProyek
+
+    
