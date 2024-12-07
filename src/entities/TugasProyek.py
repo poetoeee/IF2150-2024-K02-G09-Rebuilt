@@ -1,5 +1,5 @@
 class TugasProyek:
-    def __init__(self, idTugas = None, judulTugas = "", descTugas = "", biayaTugas = None, statusProyek = ""):
+    def __init__(self, idTugas = None, judulTugas = "", descTugas = "", biayaTugas = None, statusProyek = "", idProyekOfTugas = None):
         self.idTugas = idTugas
         self.judulTugas = judulTugas
         self.descTugas = descTugas
