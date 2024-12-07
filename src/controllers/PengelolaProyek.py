@@ -1,6 +1,12 @@
 """Module for managing project (proyek) operations in the system."""
 from entities.Proyek import Proyek
-from database.db_connector import get_connection
+from database.db_connection import get_connection
+
+class PengelolaProyek:
+    """Class to handle CRUD operations for Proyek entities."""
+
+    from entities.Proyek import Proyek
+from database.db_connection import get_connection
 
 class PengelolaProyek:
     """Class to handle CRUD operations for Proyek entities."""
@@ -16,6 +22,7 @@ class PengelolaProyek:
         """
         connection = get_connection()
         if not connection:
+            print("Failed to get database connection.")
             return False
 
         try:
@@ -30,17 +37,17 @@ class PengelolaProyek:
                     tanggalMulaiProyek,
                     tanggalSelesaiProyek,
                     statusProyek
-                )
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             '''
             values = (
-                proyek.getJudulProyek(),
-                proyek.getDescProyek(),
-                proyek.getProgressProyek(),
-                proyek.getBiayaProyek(),
-                proyek.getEstimasiBiayaProyek(),
-                proyek.getTanggalMulaiProyek(),
-                proyek.getTanggalSelesaiProyek(),
-                proyek.getStatusProyek()
+                proyek.get_judulProyek(),
+                proyek.get_descProyek(),
+                proyek.get_progressProyek(),
+                proyek.get_biayaProyek(),
+                proyek.get_estimasiBiayaProyek(),
+                proyek.get_tanggalMulaiProyek(),
+                proyek.get_tanggalSelesaiProyek(),
+                proyek.get_statusProyek()
             )
             cursor.execute(query, values)
             connection.commit()
@@ -54,6 +61,7 @@ class PengelolaProyek:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
+
 
     def getAllProyek(self, asc):
         """Retrieve all projects from database.
