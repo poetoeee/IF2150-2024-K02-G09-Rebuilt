@@ -21,10 +21,10 @@ class PengelolaBiaya:
             '''
 
             values = (
-                tugas.getJudulTugas(),
-                tugas.getDescTugas(),
-                tugas.getBiayaTugas(),
-                tugas.getStatusTugas(),
+                biaya.getJudulTugas(),
+                biaya.getDescTugas(),
+                biaya.getBiayaTugas(),
+                biaya.getStatusTugas(),
             )
             cursor.execute(query, values)
             connection.commit()
@@ -126,10 +126,12 @@ def editBiaya(self, biayaEditted):
         """
 
         values = (
-            biayaEditted.getJudulTugas(),
-            biayaEditted.getDescTugas(),
-            biayaEditted.getStatusTugas(),
-            biayaEditted.getIdTugas()
+            biayaEditted.getnamaBarangBiaya(),
+            biayaEditted.getketeranganBiaya(),
+            biayaEditted.gethargaSatuanBiaya(),
+            biayaEditted.getquantityBiaya(),
+            biayaEditted.gettotalBiaya(),
+            biayaEditted.getidBiaya()
         )
         cursor.execute(query, values)
         connection.commit()
@@ -144,4 +146,6 @@ def editBiaya(self, biayaEditted):
             cursor.close()
         connection.close()
     
+
+def getAllBiayaInProyek(self, allBiaya):
     
