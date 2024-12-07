@@ -47,7 +47,7 @@ class Biaya:
     def getidTugasOfBiaya(self):
         return self.idTugasOfBiaya
     
-    def settotalBiaya(self, totalBiaya):
+    def setidTugasOfBiaya(self, idTugasOfBiaya):
         self.idTugasOfBiaya = idTugasOfBiaya
     
         
