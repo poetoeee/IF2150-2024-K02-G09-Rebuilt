@@ -38,29 +38,6 @@ class PengelolaBiaya:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
-
-def deleteBiaya(self, idBiayaInput):
-        connection = get_connection()
-        if not connection:
-            print("Failed to get database connection.")
-            return False
-    
-        try:
-            cursor = connection.cursor()
-            query = "DELETE FROM t_biaya WHERE idBiaya = ?"
-            cursor.execute(query, (idBiayaInput,))
-            connection.commit()
-            return cursor.rowcount > 0
-        
-        except Exception as err:
-            print(f"Error deleting Biaya: {err}")
-            return False
-
-        
-        finally:
-            if 'cursor' in locals():
-                cursor.close()
-            connection.close()
             
 def getAllBiaya(self):
     connection = get_connection()
@@ -107,3 +84,64 @@ def getAllBiaya(self):
         if 'cursor' in locals():
             cursor.close()
         connection.close()
+
+def deleteBiaya(self, idBiayaInput):
+        connection = get_connection()
+        if not connection:
+            print("Failed to get database connection.")
+            return False
+    
+        try:
+            cursor = connection.cursor()
+            query = "DELETE FROM t_biaya WHERE idBiaya = ?"
+            cursor.execute(query, (idBiayaInput,))
+            connection.commit()
+            return cursor.rowcount > 0
+        
+        except Exception as err:
+            print(f"Error deleting Biaya: {err}")
+            return False
+
+        
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
+            connection.close()
+
+def editBiaya(self, biayaEditted):
+    connection = get_connection()
+    if not connection:
+        return False
+
+    try:
+        cursor = connection.cursor()
+        query = """
+            UPDATE t_biaya
+            SET namaBarangBiaya = ?,
+                keteranganBiaya = ?,
+                hargaSatuanBiaya = ?,
+                quantityBiaya = ?,
+                totalBiaya = ?
+            WHERE idBiaya = ?
+        """
+
+        values = (
+            biayaEditted.getJudulTugas(),
+            biayaEditted.getDescTugas(),
+            biayaEditted.getStatusTugas(),
+            biayaEditted.getIdTugas()
+        )
+        cursor.execute(query, values)
+        connection.commit()
+        return cursor.rowcount > 0
+    
+    except Exception as err:
+        print(f"Error updating biaya: {err}")
+        return False
+    
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        connection.close()
+    
+    
