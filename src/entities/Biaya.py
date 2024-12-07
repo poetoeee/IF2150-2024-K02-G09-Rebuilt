@@ -8,46 +8,46 @@ class Biaya:
         self.totalBiaya = totalBiaya
         self.idTugasOfBiaya= totalBiaya
         
-    def get_idBiaya(self):
+    def getidBiaya(self):
         return self.idBiaya
     
-    def set_idBiaya(self, idBiaya):
+    def setidBiaya(self, idBiaya):
         self.idBiaya = idBiaya
 
-    def get_namaBarangBiaya(self):
+    def getnamaBarangBiaya(self):
         return self.namaBarangBiaya
     
-    def set_namaBarangBiaya(self, namaBarangBiaya):
+    def setnamaBarangBiaya(self, namaBarangBiaya):
         self.namaBarangBiaya = namaBarangBiaya
 
-    def get_keteranganBiaya(self):
+    def getketeranganBiaya(self):
         return self.keteranganBiaya
     
-    def set_keteranganBiaya(self, keteranganBiaya):
+    def setketeranganBiaya(self, keteranganBiaya):
         self.keteranganBiaya = keteranganBiaya
     
-    def get_hargaSatuanBiaya(self):
+    def gethargaSatuanBiaya(self):
         return self.hargaSatuanBiaya
     
-    def set_hargaSatuanBiaya(self, hargaSatuanBiaya):
+    def sethargaSatuanBiaya(self, hargaSatuanBiaya):
         self.hargaSatuanBiaya = hargaSatuanBiaya
 
-    def get_quantityBiaya(self):
+    def getquantityBiaya(self):
         return self.quantityBiaya
     
-    def set_quantityBiaya(self, quantityBiaya):
+    def setquantityBiaya(self, quantityBiaya):
         self.quantityBiaya = quantityBiaya
 
-    def get_totalBiaya(self):
+    def gettotalBiaya(self):
         return self.totalBiaya
     
-    def set_totalBiaya(self, totalBiaya):
+    def settotalBiaya(self, totalBiaya):
         self.totalBiaya = totalBiaya
 
-    def get_idTugasOfBiaya(self):
+    def getidTugasOfBiaya(self):
         return self.idTugasOfBiaya
     
-    def set_totalBiaya(self, totalBiaya):
+    def settotalBiaya(self, totalBiaya):
         self.idTugasOfBiaya = idTugasOfBiaya
     
         
