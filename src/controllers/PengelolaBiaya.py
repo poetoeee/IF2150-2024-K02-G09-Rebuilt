@@ -21,10 +21,12 @@ class PengelolaBiaya:
             '''
 
             values = (
-                biaya.getJudulTugas(),
-                biaya.getDescTugas(),
-                biaya.getBiayaTugas(),
-                biaya.getStatusTugas(),
+                biaya.getnamaBarangBiaya(),
+                biaya.getketeranganBiaya(),
+                biaya.gethargaSatuanBiaya(),
+                biaya.getquantityBiaya(),
+                biaya.gettotalBiaya(),
+                biaya.getidBiaya()
             )
             cursor.execute(query, values)
             connection.commit()
