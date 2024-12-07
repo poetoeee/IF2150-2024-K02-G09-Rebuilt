@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import ttk #ganti jadi nama yang lain 
+from tkinter import ttk
 import customtkinter as ctk
+from boundaries.DisplayTugas import DisplayTugas
 
 class ScrollableFrame(ttk.Frame):
     def __init__(self, parent, **kwargs):
@@ -35,16 +36,18 @@ class ScrollableFrame(ttk.Frame):
         canvas_width = event.width
         self.canvas.itemconfig(self.scrollable_frame_id, width=canvas_width)
 
-class DisplayProyek:
-    def __init__(self, controller):
-        self.window = tk.Tk()
-        self.window.title("Proyek Management")
-        self.window.state('zoomed')
-        
-        self.main_frame = ttk.Frame(self.window, padding=(20, 10))
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20)
-        
+class DisplayProyek(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)  # Call parent constructor with only the parent parameter
+
         self.controller = controller
+        self.parent = parent
+        self.pack(fill=tk.BOTH, expand=True)  # Use pack to make it appear
+
+        self.main_frame = ttk.Frame(self, padding=(20, 10))
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20)
+        self.pack_propagate(False)
+        
         self.setup_ui()
         
     def setup_ui(self):
@@ -171,9 +174,8 @@ class DisplayProyek:
         canvas = tk.Canvas(self.main_frame, height=0.5, bg="#7A7E93", bd=0, highlightthickness=0)
         canvas.pack(fill=tk.X, pady=5)  # Add the canvas and make it stretch across the width of the window
         
-        canvas.create_line(0, 1, self.window.winfo_width(), 1, fill="white", width=2)
-        
-        
+        canvas.create_line(0, 1, self.winfo_width(), 1, fill="white", width=2)
+
         
         
         # bottom content part
@@ -229,23 +231,10 @@ class DisplayProyek:
         proyek_list = [
             {"title": "Project#1", "date": "2024-12-01", "progress": 70, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
             {"title": "Project#2", "date": "2024-12-02", "progress": 50, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#3", "date": "2024-12-03", "progress": 90, "status": "Done", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#4", "date": "2024-12-04", "progress": 30, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#4", "date": "2024-12-04", "progress": 30, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#4", "date": "2024-12-04", "progress": 30, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#4", "date": "2024-12-04", "progress": 30, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#4", "date": "2024-12-04", "progress": 30, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay hasjgsja hsjghdj ashdhjsg jhsdjsa jhsgdjhad hsgdhja ewjke sdj jshdjah hgdsha"},
-            {"title": "Project#5", "date": "2024-12-05", "progress": 100, "status": "Done", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"}
+            {"title": "Project#3", "date": "2024-12-03", "progress": 80, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"}
         ]
+        
         self.create_project_cards(proyek_list)
-
-        # i want to display the create_project_cards here and packed into projectsContainer
-        
-        # whole projects packed
-        
-    
-    def onAddButtonClick(self):
-        print("Image button clicked!")
     
     def create_project_cards(self, proyek_list):
         # Use the scrollable frame for project cards
@@ -353,17 +342,21 @@ class DisplayProyek:
                 borderwidth=0,
                 bg="#FFFFFF",
                 activebackground="#FFFFFF",
-                cursor="hand2"
+                cursor="hand2",
+                command=self.onRightArrowClick
             )
             right_arrow_button.pack(side="right")
 
+    def onAddButtonClick(self):
+        print("Add button clicked!")
+        
+    def onRightArrowClick(self):
+        print("Right arrow clicked!")
+        # Navigate to the DisplayTugas frame
+        self.controller.show_frame(DisplayTugas)
 
-    
-    def run(self):
-        self.window.mainloop()
-
+# Instantiate and run the program
 if __name__ == "__main__":
-    from controllers.PengelolaProyek import PengelolaProyek
-    controller = PengelolaProyek()
+    controller = None  # Replace with the actual controller if needed
     app = DisplayProyek(controller)
-    app.run()
+    app.window.mainloop()

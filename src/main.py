@@ -1,14 +1,10 @@
 import setup_env  # ini tolong hapus ini ada cuma gara gara python gue fucked up
-from controllers.PengelolaProyek import PengelolaProyek
-from boundaries.DisplayProyek import DisplayProyek
+
+from MainApplication import MainApp  # Ensure the capitalization matches the filename.
 
 def main():
-    # Initialize the controller
-    controller = PengelolaProyek()
-    
-    # Initialize and run the UI
-    app = DisplayProyek(controller)
-    app.run()
+    app = MainApp()
+    app.mainloop()
 
 if __name__ == "__main__":
     main()
