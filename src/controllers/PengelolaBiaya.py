@@ -62,48 +62,48 @@ def deleteBiaya(self, idBiayaInput):
                 cursor.close()
             connection.close()
             
-    def getAllBiaya(self):
-        connection = get_connection()
-        if not connection:
-            print("Database connection failed.")
-            return []
-        
-        try:
-            cursor = connection.cursor()
-            query = "SELECT * FROM t_biaya"
-            print("Executing query:", query)  # Debugging
+def getAllBiaya(self):
+    connection = get_connection()
+    if not connection:
+        print("Database connection failed.")
+        return []
+    
+    try:
+        cursor = connection.cursor()
+        query = "SELECT * FROM t_biaya"
+        print("Executing query:", query)  # Debugging
 
-            cursor.execute(query)
+        cursor.execute(query)
 
-            biayaArray = []
+        biayaArray = []
 
-            for (idBiaya,
-                namaBarangBiaya,
-                keteranganBiaya,
-                hargaSatuanBiaya,
-                quantityBiaya,
-                totalBiaya,
-                idTugasOfBiaya
-                ) in cursor:
+        for (idBiaya,
+            namaBarangBiaya,
+            keteranganBiaya,
+            hargaSatuanBiaya,
+            quantityBiaya,
+            totalBiaya,
+            idTugasOfBiaya
+            ) in cursor:
 
-                biaya = Biaya(
-                    namaBarangBiaya = namaBarangBiaya,
-                    keteranganBiaya = keteranganBiaya,
-                    hargaSatuanBiaya = hargaSatuanBiaya,
-                    quantityBiaya = quantityBiaya,
-                    totalBiaya = totalBiaya,
-                    idTugasOfBiaya = idTugasOfBiaya
-                )
-                biayaArray.append(biaya)
-                print(f"Fetched tugas: {namaBarangBiaya}, {keteranganBiaya}, {hargaSatuanBiaya}, {quantityBiaya}, {totalBiaya}, {idTugasOfBiaya}")
+            biaya = Biaya(
+                namaBarangBiaya = namaBarangBiaya,
+                keteranganBiaya = keteranganBiaya,
+                hargaSatuanBiaya = hargaSatuanBiaya,
+                quantityBiaya = quantityBiaya,
+                totalBiaya = totalBiaya,
+                idTugasOfBiaya = idTugasOfBiaya
+            )
+            biayaArray.append(biaya)
+            print(f"Fetched tugas: {namaBarangBiaya}, {keteranganBiaya}, {hargaSatuanBiaya}, {quantityBiaya}, {totalBiaya}, {idTugasOfBiaya}")
 
-            return biayaArray
-        
-        except Exception as err:
-            print(f"Error fetching all tugas: {err}")
-            return []
-        
-        finally:
-            if 'cursor' in locals():
-                cursor.close()
-            connection.close()
+        return biayaArray
+    
+    except Exception as err:
+        print(f"Error fetching all tugas: {err}")
+        return []
+    
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        connection.close()
