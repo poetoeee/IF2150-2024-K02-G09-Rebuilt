@@ -64,12 +64,12 @@ def getAllBiaya(self):
             ) in cursor:
 
             biaya = Biaya(
-                namaBarangBiaya = namaBarangBiaya,
-                keteranganBiaya = keteranganBiaya,
-                hargaSatuanBiaya = hargaSatuanBiaya,
-                quantityBiaya = quantityBiaya,
-                totalBiaya = totalBiaya,
-                idTugasOfBiaya = idTugasOfBiaya
+                biaya.getnamaBarangBiaya(),
+                biaya.getketeranganBiaya(),
+                biaya.gethargaSatuanBiaya(),
+                biaya.getquantityBiaya(),
+                biaya.gettotalBiaya(),
+                biaya.getidBiaya()
             )
             biayaArray.append(biaya)
             print(f"Fetched tugas: {namaBarangBiaya}, {keteranganBiaya}, {hargaSatuanBiaya}, {quantityBiaya}, {totalBiaya}, {idTugasOfBiaya}")
