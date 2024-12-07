@@ -147,5 +147,31 @@ def editBiaya(self, biayaEditted):
         connection.close()
     
 
-def getAllBiayaInProyek(self, allBiaya):
+def getAllBiayaInProyek(self, id_proyek):
+    connection = get_connection()
+    if not connection:
+        print("Database connection failed.")
+        return []
     
+    try:
+        cursor = connection.cursor()
+        query = """
+            SELECT * FROM t_biaya
+            WHERE idProyek = ?
+        """
+        cursor.execute(query, (id_proyek,))
+        
+        biayaArray = []
+        for row in cursor:
+            biaya = Biaya(*row)
+            biayaArray.append(biaya)
+        
+        return biayaArray
+    
+    except Exception as err:
+        print(f"Error fetching biaya for proyek {id_proyek}: {err}")
+        return []
+    
+    finally:
+        cursor.close()
+        connection.close()
