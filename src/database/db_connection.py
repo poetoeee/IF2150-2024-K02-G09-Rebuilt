@@ -1,6 +1,7 @@
 import sqlite3
 import os
 
+
 db_dir = os.path.dirname(__file__)
 db_file = 'rebuilt.db'
 db_path = os.path.join(db_dir, db_file)

@@ -1,5 +1,6 @@
 class TugasProyek:
-    def __init__(self, idTugas = None, judulTugas = "", descTugas = "", biayaTugas = None, statusTugas = "", idProyekOfTugas = ""):
+    def __init__(self, idTugas = None, judulTugas = "", descTugas = "", biayaTugas = None, statusProyek = "", idProyekOfTugas = None):
+
         self.idTugas = idTugas
         self.judulTugas = judulTugas
         self.descTugas = descTugas
@@ -22,7 +23,6 @@ class TugasProyek:
 
     def getDescTugas(self):
         return self.descTugas
-   
 
     def setDescTugas(self, descTugas):
         self.descTugas = descTugas

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS t_tugas (
     descTugas TEXT,
     biayaTugas INT,
     statusTugas VARCHAR(15),
+
     idProyekOfTugas INTEGER, 
     CONSTRAINT fk_idProyekOfTugas FOREIGN KEY (idProyekOfTugas) REFERENCES t_proyek(idProyek)
         ON DELETE CASCADE ON UPDATE CASCADE
