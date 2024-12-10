@@ -23,16 +23,22 @@ class DisplayTugas:
 
     def displayAllTugas(self):
     # Dapatkan ukuran layar penuh
+        full = ttk.Frame(self.window)
+        full.place(relx=0, rely=0, relwidth=1, relheight=1)
+
         screen_width = self.window.winfo_screenwidth()
         halfScreenWidth = screen_width // 2
 
         # Membuat frame utama untuk setengah layar kanan
-        mainFrame = ttk.Frame(self.window, padding=10, width=halfScreenWidth)
+        mainFrame = ttk.Frame(full, padding=10, width=halfScreenWidth)
         mainFrame.place(relx=0.5, rely=0, relwidth=0.5, relheight=1)  # Letakkan frame di setengah layar kanan
 
         # Frame untuk header (judul dan tombol Add)
         headerFrame = ttk.Frame(mainFrame)
         headerFrame.pack(fill="x", pady=10)
+
+        logo = ttk.Label(headerFrame, text="ReBuilt", font=("Arial", 16, "bold"))
+        logo.pack(side="right", padx=80, pady=50)
 
         # Menambahkan label untuk nama tugas di headerFrame
         judulLabel = ttk.Label(headerFrame, text="[Tugas]", font=("Arial", 16, "bold"))
@@ -94,92 +100,98 @@ class DisplayTugas:
 
     def createTaskFrame(self, parent, tugas):
         screen_width = self.window.winfo_screenwidth()
-
+        frame_width = screen_width / 2  # Lebar frame setengah dari lebar layar
         status = tugas.getStatusTugas()
+        
         if status == 'done':
-            frameColor = "#d4edda"  # Hijau muda untuk "On Progress"
+            frameColor = "#d4edda"
             image = Image.open("img/complete.png")
         else:
-            frameColor = "#d6cde7"  # Ungu muda untuk "Completed"
+            frameColor = "#d6cde7"
             image = Image.open("img/onprogress.png")
-
-        # Buat frame untuk tugas
-        taskFrame = tk.Frame(parent, bg=frameColor, relief="ridge", borderwidth=2)
-        taskFrame.pack(fill="x", padx=10, pady=5)
-
-        # Nama tugas
+        
+        taskFrame = tk.Frame(
+            parent, 
+            bg=frameColor, 
+            relief="ridge", 
+            borderwidth=2, 
+            width=frame_width - 80,  # Menggunakan lebar yang sudah dihitung
+            height=60
+        )
+        taskFrame.pack(padx=10, pady=5, fill="x")
+        taskFrame.pack_propagate(False)  # Pertahankan ukuran frame
+        
         taskNameLabel = tk.Label(
             taskFrame, 
             text=tugas.getJudulTugas(), 
             font=("Arial", 11, "bold"), 
             bg=frameColor, 
             anchor="w", 
-            cursor="hand2"  # Menambahkan cursor tangan untuk menandakan label bisa diklik
+            cursor="hand2"
         )
-
-        # Menambahkan event binding untuk mengklik label
         taskNameLabel.bind("<Button-1>", lambda event: self.displayPerTugas(tugas))
-
-        taskNameLabel.pack(side="left", fill="x", expand=True, padx=(10, 300))
-
-
+        taskNameLabel.pack(side="left", fill="x", expand=True, padx=(10, 5))
+        
         style = ttk.Style()
         style.configure("Custom.TButton", background="#FFFFFF", borderwidth=0)
         style.map(
-            "Custom.TButton",
-            background=[("active","#FFFFFF"), ("pressed","#FFFFFF")]
+            "Custom.TButton", 
+            background=[("active", "#FFFFFF"), ("pressed", "#FFFFFF")]
         )
-        # Ganti dengan path gambar Anda
+        
         photo = ImageTk.PhotoImage(image)
         image_button = ttk.Button(
-            taskFrame,
-            image=photo,
-            compound="center",
-            style="Custom.TButton"
+            taskFrame, 
+            image=photo, 
+            compound="center", 
+            style="Custom.TButton", 
+            command=lambda: self.someButtonAction(tugas)
         )
         image_button.image = photo
-        image_button.pack(side="right", padx=(270, 10), pady=5)
-        
+        image_button.pack(side="right", padx=(5, 10), pady=5)
 
     def displayPerTugas(self, tugas):
-
         full = ttk.Frame(self.window)
         full.place(relx=0, rely=0, relwidth=1, relheight=1)
-
 
         screenHeight = self.window.winfo_screenheight()
         screenWidth = self.window.winfo_screenwidth()
         mainFrameHeight = int(screenHeight * 0.4)  # 40% dari tinggi layar
 
-        #### TFream
-        style = ttk.Style()
-        style.configure(
-            "Custom.TFrame",  # Nama style
-            background="#d6cde7",  # Warna background
-            relief="ridge",  # Jenis border
-            borderwidth=2     # Lebar border
-        )
-
         # Membuat frame utama untuk layar penuh
         mainFrame = ttk.Frame(full, padding=10, height=mainFrameHeight, width=screenWidth)
         mainFrame.place(relx=0, rely=0, relwidth=1, relheight=0.4)
 
+        headerFrame = ttk.Frame(mainFrame)
+        headerFrame.grid(row=0, column=12, padx=(450, 10), pady=(30,10), sticky="nw")
+
+        logo = ttk.Label(headerFrame, text="ReBuilt", font=("Arial", 16, "bold"))
+        logo.pack(side="right", padx=80, pady=50)
+
+        # Tombol back di bagian atas kiri
+        imgBack = Image.open("img/back.png")
+        photoBack = ImageTk.PhotoImage(imgBack)
+        backButton = ttk.Button(
+            mainFrame,
+            image=photoBack,
+            compound="top",
+            style="Custom.TButton",
+            command=lambda: self.displayAllTugas()
+        )
+        backButton.image = photoBack
+        backButton.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
         # Menambahkan label untuk nama tugas
         tugas_name = ttk.Label(mainFrame, text=tugas.getJudulTugas(), font=("Arial", 16, "bold"))
-        tugas_name.grid(row=0, column=0, columnspan=2, padx=10, pady=(100, 20), sticky="w")
+        tugas_name.grid(row=1, column=0, columnspan=2, padx=50, pady=(10, 20), sticky="w")
 
         # Membuat frame untuk tombol (edit & delete)
         buttonFrame = ttk.Frame(mainFrame)
-        buttonFrame.grid(row=1, column=0, padx=10, pady=(50, 5), sticky="nw")
+        buttonFrame.grid(row=3, column=0, padx=10, pady=(40, 5), sticky="nw")
 
         # Button edit
-        style.configure("Custom.TButton", background="#FFFFFF", borderwidth=0)
-        style.map("Custom.TButton", background=[("active", "#FFFFFF"), ("pressed", "#FFFFFF")])
-
-        image_edit = Image.open("img/editButton.png")  # Ganti dengan path gambar Anda untuk tombol edit
+        image_edit = Image.open("img/editButton.png")
         photo_edit = ImageTk.PhotoImage(image_edit)
-
         edit_button = ttk.Button(
             buttonFrame,
             image=photo_edit,
@@ -191,9 +203,8 @@ class DisplayTugas:
         edit_button.pack(side="left", padx=10)
 
         # Button delete
-        image_delete = Image.open("img/deleteButton.png")  # Ganti dengan path gambar Anda untuk tombol delete
+        image_delete = Image.open("img/deleteButton.png")
         photo_delete = ImageTk.PhotoImage(image_delete)
-
         delete_button = ttk.Button(
             buttonFrame,
             image=photo_delete,
@@ -206,27 +217,24 @@ class DisplayTugas:
 
         # Membuat frame untuk deskripsi tugas dan biaya
         desc_frame = ttk.Frame(mainFrame)
-        desc_frame.grid(row=1, column=1, padx=(300, 10), pady=10, sticky="nsew")
-
-        # Mengatur grid agar desc_frame mendapatkan lebih banyak ruang
-        mainFrame.columnconfigure(1, weight=3)  # Memberikan bobot lebih besar ke kolom 1 (desc_frame)
-        mainFrame.columnconfigure(0, weight=1)  # Kolom tombol memiliki bobot lebih kecil
+        desc_frame.grid(row=1, column=3, padx=(300, 10), pady=10, sticky="nsew")
 
         # Menambahkan deskripsi tugas
         desc_label = ttk.Label(desc_frame, text=tugas.getDescTugas(), font=("Arial", 12), justify="left", wraplength=600)
         desc_label.pack(fill="both", expand=True, padx=10, pady=10)
 
         biayaFrame = ttk.Frame(mainFrame)
-        biayaFrame.grid(row=3, column=1, padx=(300,10), pady=10, sticky="nsew")
+        biayaFrame.grid(row=3, column=3, padx=(300,10), pady=10, sticky="nsew")
 
         # Menambahkan label biaya di bawah deskripsi tugas
         biaya_label = ttk.Label(biayaFrame, text=f"Biaya: Rp {tugas.getBiayaTugas():,}", font=("Arial", 12, "bold"), anchor="w")
         biaya_label.pack(fill="x", padx=10, pady=(0, 10))
 
-        #frame status
+        # Frame status
         statusFrame = ttk.Frame(mainFrame)
-        statusFrame.grid(row=3, column=3, padx=50, pady=10, sticky="nsew")
-        ## status
+        statusFrame.grid(row=3, column=5, padx=50, pady=10, sticky="nsew")
+
+        # Status
         status = tugas.getStatusTugas()
         if status == 'done':
             image = Image.open("img/complete.png")
@@ -239,7 +247,6 @@ class DisplayTugas:
             "Custom.TButton",
             background=[("active","#FFFFFF"), ("pressed","#FFFFFF")]
         )
-        # Ganti dengan path gambar Anda
         photo = ImageTk.PhotoImage(image)
         image_button = ttk.Button(
             statusFrame,
@@ -251,12 +258,42 @@ class DisplayTugas:
         image_button.pack(side="right", padx=10, pady=5)
 
 
-
         
     def popupFormTugas(self):
+        # Dapatkan ukuran layar
+        screenHeight = self.window.winfo_screenheight()
+        screenWidth = self.window.winfo_screenwidth()
+
+        # Hitung posisi dan ukuran frame utama
+        frame_width = 675
+        frame_height = 900
+        frame_x = (screenWidth - frame_width) // 2  # Posisi x di tengah layar
+        frame_y = (screenHeight - frame_height) // 2  # Posisi y di tengah layar
+
+        style = ttk.Style()
+        style.configure(
+            "Custom.TFrame",  # Nama style
+            relief="ridge",  # Jenis border
+            borderwidth=2     # Lebar border
+        )
+
+        # Membuat frame utama
+        form_window = ttk.Frame(self.window, padding=10, height=frame_height, width=frame_width, style="Custom.TFrame")
+        form_window.place(x=frame_x, y=frame_y)
         # Membuat jendela popup baru (Toplevel)
-        form_window = ttk.Toplevel(self.window)
-        form_window.title("Form Input Tugas")  # Judul untuk jendela popup
+        
+        # Tombol back di bagian atas kiri
+        imgBack = Image.open("img/back.png")
+        photoBack = ImageTk.PhotoImage(imgBack)
+        backButton = ttk.Button(
+            form_window,
+            image=photoBack,
+            compound="top",
+            style="Custom.TButton",
+            command=lambda: self.displayAllTugas()
+        )
+        backButton.image = photoBack
+        backButton.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
         # Header
         judulLabel = ttk.Label(form_window, text="[Add Tugas]", font=("Arial", 16, "bold"))
@@ -309,9 +346,39 @@ class DisplayTugas:
         
 
     def popupEditTugas(self, tugas):
-    # Membuat jendela popup baru (Toplevel)
-        form_window = ttk.Toplevel(self.window)
-        form_window.title("Form Input Tugas")  # Judul untuk jendela popup
+        # Dapatkan ukuran layar
+        screenHeight = self.window.winfo_screenheight()
+        screenWidth = self.window.winfo_screenwidth()
+
+        # Hitung posisi dan ukuran frame utama
+        frame_width = 675
+        frame_height = 900
+        frame_x = (screenWidth - frame_width) // 2  # Posisi x di tengah layar
+        frame_y = (screenHeight - frame_height) // 2  # Posisi y di tengah layar
+
+        style = ttk.Style()
+        style.configure(
+            "Custom.TFrame",  # Nama style
+            relief="ridge",  # Jenis border
+            borderwidth=2     # Lebar border
+        )
+
+        # Membuat frame utama
+        form_window = ttk.Frame(self.window, padding=10, height=frame_height, width=frame_width, style="Custom.TFrame")
+        form_window.place(x=frame_x, y=frame_y)
+        
+        # Tombol back di bagian atas kiri
+        imgBack = Image.open("img/back.png")
+        photoBack = ImageTk.PhotoImage(imgBack)
+        backButton = ttk.Button(
+            form_window,
+            image=photoBack,
+            compound="top",
+            style="Custom.TButton",
+            command=lambda: self.displayPerTugas(tugas)
+        )
+        backButton.image = photoBack
+        backButton.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
         # Header
         judulLabel = ttk.Label(form_window, text="[Edit Tugas Detail]", font=("Arial", 16, "bold"))
@@ -371,6 +438,8 @@ class DisplayTugas:
             if success:
                 messagebox.showinfo("Success", "Tugas berhasil ditambahkan.")
                 self.clearForm()
+                self.displayAllTugas()
+
             else:
                 messagebox.showerror("Error", "Gagal menambahkan Tugas.")
 
@@ -393,6 +462,8 @@ class DisplayTugas:
             if success:
                 messagebox.showinfo("Success", "Tugas berhasil diperbarui.")
                 self.clearForm()
+                self.displayAllTugas()
+
             else:
                 messagebox.showerror("Error", "Gagal memperbarui Tugas.")
 
@@ -402,9 +473,27 @@ class DisplayTugas:
     
 
     def popupHapus(self, tugas):
-        # Membuat jendela popup baru (Toplevel)
-        popupWindow = ttk.Toplevel(self.window)
-        popupWindow.title("Konfirmasi hapus")  # Judul untuk jendela popup
+
+        # Dapatkan ukuran layar
+        screenHeight = self.window.winfo_screenheight()
+        screenWidth = self.window.winfo_screenwidth()
+
+        # Hitung posisi dan ukuran frame utama
+        frame_width = 675
+        frame_height = 900
+        frame_x = (screenWidth - frame_width) // 2  # Posisi x di tengah layar
+        frame_y = (screenHeight - frame_height) // 2  # Posisi y di tengah layar
+
+        style = ttk.Style()
+        style.configure(
+            "Custom.TFrame",  # Nama style
+            relief="ridge",  # Jenis border
+            borderwidth=2     # Lebar border
+        )
+
+        # Membuat frame utama
+        popupWindow = ttk.Frame(self.window, padding=10, height=frame_height, width=frame_width, style="Custom.TFrame")
+        popupWindow.place(x=frame_x, y=frame_y)
 
         # Label judul, posisikan di tengah
         judulLabel = ttk.Label(popupWindow, text="Apakah yakin ingin menghapus tugas?", font=("Helvetica", 12))
@@ -424,7 +513,9 @@ class DisplayTugas:
             popupWindow,  # Tombol berada di dalam popupHapus
             image=photoTidak,
             compound="center",
-            style="Custom.TButton"
+            style="Custom.TButton",
+            command=lambda: self.displayPerTugas(tugas)
+
         )
         tidakButton.image = photoTidak  # Menyimpan referensi gambar
         tidakButton.grid(row=1, column=0, pady=20, padx=5, sticky="ew")  # Tombol di baris 1 dan kolom 0
@@ -438,10 +529,21 @@ class DisplayTugas:
             popupWindow, 
             image=photoIya,
             style="Custom.TButton",
-            command=lambda: self.controller.deleteTugas(tugas.idTugas)
+            command=lambda: self.hapusTugas(tugas.idTugas)
         )
         iyaButton.image = photoIya  # Menyimpan referensi gambar
         iyaButton.grid(row=1, column=1, pady=(20), padx=5, sticky="ew")
+        
+
+    def hapusTugas(self, idTugas):
+        success = self.controller.deleteTugas(idTugas)
+        if success:
+            messagebox.showinfo("Success", "Tugas berhasil dihapus.")
+            self.clearForm()
+            self.displayAllTugas()
+        else:
+            messagebox.showerror("Error", "Gagal menghapus tugas.")
+
 
     def clearForm(self):
         for key, widget in self.fields.items():
