@@ -1,4 +1,4 @@
-class Isnpirasi:
+class Inspirasi:
     def __init__(self, idInspirasi=None, judulInspirasi="", descInspirasi="", imageInspirasi="", linkInspirasi=""):
         self.idInspirasi = idInspirasi
         self.judulInspirasi = judulInspirasi
