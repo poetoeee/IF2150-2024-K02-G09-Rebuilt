@@ -14,7 +14,7 @@ class ProjectUI:
         # Tugas Frame - Top Section (40% Height)
         self.create_tugas_frame()
 
-        # Biaya Frame - Bottom Section (Centered)
+        # Biaya Frame - Bottom Section (Centered with Scroll)
         self.create_biaya_frame()
 
     def create_tugas_frame(self):
@@ -47,24 +47,39 @@ class ProjectUI:
         total_label.pack(anchor="e", padx=10, pady=5)
 
     def create_biaya_frame(self):
-        """Creates the bottom 'Biaya' section centered below the Tugas frame."""
-        biaya_frame = ttk.Frame(self.root, padding=10, borderwidth=2, relief="ridge")
-        biaya_frame.place(relx=0.5, rely=0.5, relwidth=0.9, relheight=0.45, anchor="n")
+        """Creates the bottom 'Biaya' section centered below the Tugas frame with scrollable items."""
+        # Create a Canvas widget for scrolling the rows
+        canvas_frame = ttk.Frame(self.root)
+        canvas_frame.place(relx=0.5, rely=0.5, relwidth=0.9, relheight=0.45, anchor="n")
 
-        # Header
-        ttk.Label(biaya_frame, text="[Biaya]", font=("Arial", 14, "bold")).pack(anchor="w", padx=10, pady=5)
+        # Create a Canvas inside the frame
+        canvas = tk.Canvas(canvas_frame)
+        canvas.grid(row=0, column=0, sticky="nsew")
 
-        # Table Frame
-        table_frame = ttk.Frame(biaya_frame)
-        table_frame.pack(fill="both", expand=True, padx=10, pady=(5, 0))
+        # Add a Scrollbar linked to the Canvas
+        scrollbar = ttk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
 
-        # Table Header
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Create a Frame inside the Canvas to hold the content
+        content_frame = ttk.Frame(canvas, padding=10, borderwidth=2, relief="ridge")
+        canvas.create_window((0, 0), window=content_frame, anchor="nw")
+
+        # Header Section (Fixed)
+        header_frame = ttk.Frame(content_frame)
+        header_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=5)
+
         headers = ["Barang", "Harga", "Qty", "Total", "Keterangan", "Aksi"]
         for col_idx, header in enumerate(headers):
-            header_label = ttk.Label(table_frame, text=header, font=("Arial", 12, "bold"), anchor="center", 
+            header_label = ttk.Label(header_frame, text=header, font=("Arial", 12, "bold"), anchor="center", 
                                      bootstyle="secondary")
             header_label.grid(row=0, column=col_idx, padx=5, pady=5, sticky="nsew")
-            table_frame.grid_columnconfigure(col_idx, weight=1)
+            header_frame.grid_columnconfigure(col_idx, weight=1)
+
+        # Create a Frame inside the row_canvas to hold the rows (this frame will be scrollable)
+        row_content_frame = ttk.Frame(content_frame)
+        row_content_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
 
         # Table Rows with Sample Data
         sample_data = [
@@ -72,15 +87,20 @@ class ProjectUI:
             ("Pasir", "Rp9.000", "12", "Rp108.000", "", ""),
             ("Pegawai", "Rp9.000", "12", "Rp108.000", "", ""),
             ("Cat dinding", "Rp9.000", "12", "Rp108.000", "", ""),
+            ("Cement", "Rp9.000", "10", "Rp90.000", "", ""),
+            ("Batu Bata", "Rp10.000", "5", "Rp50.000", "", ""),
+            ("Pasir Merah", "Rp8.000", "15", "Rp120.000", "", ""),
+            ("Kayu", "Rp15.000", "8", "Rp120.000", "", ""),
+            # Add more rows as needed...
         ]
         for row_idx, row_data in enumerate(sample_data, start=1):
-            for col_idx, value in enumerate(row_data[:-1]):  # Exclude Aksi
-                ttk.Label(table_frame, text=value, anchor="center", font=("Arial", 11)).grid(
+            for col_idx, value in enumerate(row_data[:-1]):  # Exclude Aksi column
+                ttk.Label(row_content_frame, text=value, anchor="center", font=("Arial", 11)).grid(
                     row=row_idx, column=col_idx, padx=5, pady=5, sticky="nsew"
                 )
 
             # Add Action Buttons in Aksi Column
-            action_frame = ttk.Frame(table_frame)
+            action_frame = ttk.Frame(row_content_frame)
             action_frame.grid(row=row_idx, column=len(headers)-1, padx=5, pady=5)
 
             edit_btn = ttk.Button(action_frame, text="✏", bootstyle="info.Outline", width=3)
@@ -89,9 +109,13 @@ class ProjectUI:
             delete_btn = ttk.Button(action_frame, text="🗑", bootstyle="danger.Outline", width=3)
             delete_btn.pack(side="left", padx=2)
 
-        # Bottom Section: Total and Add Button
-        bottom_frame = ttk.Frame(biaya_frame)
-        bottom_frame.pack(fill="x", pady=5, padx=10)
+        # Update the row_content_frame scroll region
+        row_content_frame.update_idletasks()  # Ensure the content is fully loaded
+        canvas.config(scrollregion=canvas.bbox("all"))
+
+        # Bottom Section: Total and Add Button (Fixed)
+        bottom_frame = ttk.Frame(content_frame)
+        bottom_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=5)
 
         # Total Label on the Left
         total_label = ttk.Label(bottom_frame, text="TOTAL   Rp432.000,00", font=("Arial", 12, "bold"), bootstyle="success")

@@ -1,9 +1,9 @@
 from boundaries.DisplayPopBiaya import DisplayPop
-from controllers.PengelolaTugasProyek import PengelolaTugasProyek
+from controllers.PengelolaBiaya import PengelolaBiaya
 
 def main():
     # Initialize the controller
-    controller = PengelolaTugasProyek()
+    controller = PengelolaBiaya()
     
     # Initialize and run the UI
     app = DisplayPop(controller)
