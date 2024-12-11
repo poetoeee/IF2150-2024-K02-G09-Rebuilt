@@ -83,8 +83,8 @@ for col_index in range(len(headers)):
     scrollable_frame.columnconfigure(col_index, weight=1)
 
 # Load Icons
-edit_icon = PhotoImage(file="editbutton.png").subsample(3, 3)
-delete_icon = PhotoImage(file="deletebutton.png").subsample(3, 3)
+edit_icon = PhotoImage(file="img/editbutton.png").subsample(3, 3)
+delete_icon = PhotoImage(file="img/deletebutton.png").subsample(3, 3)
 
 # Isi Data ke dalam Grid
 for row_index, row_data in enumerate(data, start=1):
