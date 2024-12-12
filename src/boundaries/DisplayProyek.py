@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
 from boundaries.DisplayTugas import DisplayTugas
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 
 class ScrollableFrame(ttk.Frame):
     def __init__(self, parent, **kwargs):
@@ -45,15 +47,33 @@ class DisplayProyek(tk.Frame):
         self.pack(fill=tk.BOTH, expand=True)  # Use pack to make it appear
 
         self.main_frame = ttk.Frame(self, padding=(20, 10))
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10)
         self.pack_propagate(False)
         
         self.setup_ui()
         
     def setup_ui(self):
-        rebuilt_title = ttk.Label(self.main_frame, text="Rebuilt", 
+        self.titleFrame = ttk.Frame(self.main_frame)
+        self.titleFrame.pack(fill=tk.X)
+        
+        self.titleFrame.columnconfigure(0, weight=1)
+        self.titleFrame.columnconfigure(1, weight=0)
+        rebuilt_title = ttk.Label(self.titleFrame, text="Rebuilt", 
                                 font=("Helvetica", 20, "bold underline"))
-        rebuilt_title.pack(anchor="w", pady=10)
+        rebuilt_title.grid(row=0, column=0, padx=(0, 10), pady=10, sticky="w")
+        
+        self.rightArrowButtonImg = tk.PhotoImage(file="img/right-arrow.png")
+        
+        
+        self.inspirasiButtonImg = tk.PhotoImage(file="img/inspirasi-button.png")
+        inspirasiButton = tk.Button(
+            self.titleFrame,
+            image=self.inspirasiButtonImg,  # Using the class variable
+            borderwidth=0,
+            cursor="hand2",
+            command=self.onRightArrowClick
+        )
+        inspirasiButton.grid(row=0, column=1, sticky="e")
 
         self.topFrame = ttk.Frame(self.main_frame)
         self.topFrame.pack(fill=tk.X)
@@ -187,10 +207,10 @@ class DisplayProyek(tk.Frame):
         # projects part
         
         self.projectsContainer = ttk.Frame(self.bottomFrame)
-        self.projectsContainer.pack(side="left", fill=tk.Y)
+        self.projectsContainer.pack(side="left", fill=tk.BOTH)
         #first row of projectContainer
         
-        self.projectsContainerRow1= ttk.Frame(self.projectsContainer)
+        self.projectsContainerRow1= ttk.Frame(self.bottomFrame)
         self.projectsContainerRow1.pack(fill=tk.X)
         projectsTitle = ttk.Label(self.projectsContainerRow1, text="[ Projects ]", 
                                 font=("Helvetica", 25, "bold"))
@@ -224,11 +244,17 @@ class DisplayProyek(tk.Frame):
         dropdown.pack(side="right", padx=(350,5), pady=10)
         
         
-        self.scrollable_projects_frame = ScrollableFrame(self.projectsContainer)  # Pack inside projectsContainer
+        self.scrollable_projects_frame = ScrollableFrame(self.bottomFrame)  # Pack inside projectsContainer
         self.scrollable_projects_frame.pack(fill=tk.BOTH, expand=True)  # Fill remaining space in projectsContainer
 
         # Call the create_project_cards method
         proyek_list = [
+            {"title": "Project#1", "date": "2024-12-01", "progress": 70, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
+            {"title": "Project#2", "date": "2024-12-02", "progress": 50, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
+            {"title": "Project#3", "date": "2024-12-03", "progress": 80, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
+            {"title": "Project#1", "date": "2024-12-01", "progress": 70, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
+            {"title": "Project#2", "date": "2024-12-02", "progress": 50, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
+            {"title": "Project#3", "date": "2024-12-03", "progress": 80, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
             {"title": "Project#1", "date": "2024-12-01", "progress": 70, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
             {"title": "Project#2", "date": "2024-12-02", "progress": 50, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
             {"title": "Project#3", "date": "2024-12-03", "progress": 80, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"}
@@ -242,10 +268,10 @@ class DisplayProyek(tk.Frame):
         parent_frame = self.scrollable_projects_frame.scrollable_frame
 
         # Number of cards per row
-        columns = 3
+        columns = 5
         current_row_frame = None
 
-        card_width = 220
+        card_width = 210
         card_height = 220
 
         # Create a style for the inner frame and label elements
@@ -260,7 +286,7 @@ class DisplayProyek(tk.Frame):
             # Create a new row frame if needed
             if index % columns == 0:
                 current_row_frame = ttk.Frame(parent_frame)
-                current_row_frame.pack(fill=tk.X, pady=10)
+                current_row_frame.pack(fill=tk.X, pady=10, expand=True)
 
             # Create a CTkFrame for the card with rounded corners
             card = ctk.CTkFrame(
@@ -272,7 +298,7 @@ class DisplayProyek(tk.Frame):
                 border_color="#7A7E93",  # Border color
                 border_width=2,  # Border width
             )
-            card.pack(side=tk.LEFT, padx=10, pady=10, fill=tk.Y)
+            card.pack(side=tk.LEFT, padx=10, pady=10)
             card.pack_propagate(False)  # Prevent the frame from resizing to fit its content
 
             # Create a frame inside the card for internal padding
@@ -346,6 +372,577 @@ class DisplayProyek(tk.Frame):
                 command=self.onRightArrowClick
             )
             right_arrow_button.pack(side="right")
+            
+    def displayProyekById(self):
+        # Hide all existing content
+        for widget in self.main_frame.winfo_children():
+            widget.pack_forget()
+
+        # Create a new container for the detailed view
+        proyekDetailFrame = ttk.Frame(self.main_frame)
+        proyekDetailFrame.pack(fill=tk.BOTH, expand=True, padx=20)
+
+        # Configure the detailed view layout with `grid`
+        proyekDetailFrame.columnconfigure(0, weight=1, uniform="half")  # Left frame
+        proyekDetailFrame.columnconfigure(1, weight=1, uniform="half")  # Right frame
+
+        # Add the left frame
+        leftProyekFrame = ttk.Frame(proyekDetailFrame)
+        leftProyekFrame.grid(row=0, column=0, sticky="nsew")  # Fill the first column
+
+        # Add a background color for visibility
+        leftProyekFrame.config(style="LeftFrame.TFrame")
+        style = ttk.Style()
+        style.configure("LeftFrame.TFrame")
+
+        # Add a back button
+        back_button = ttk.Button(leftProyekFrame, text="← Back",
+                                command=lambda: self.show_main_view())
+        back_button.pack(anchor="w", pady=(10, 20))
+
+        # Add a title frame and label
+        titleRowFrame = ttk.Frame(leftProyekFrame)
+        titleRowFrame.pack(fill=tk.X, pady=(10, 20))  # Pack the title frame first
+
+        # Configure grid layout for the titleRowFrame
+        titleRowFrame.columnconfigure(0, weight=1)  # Allow column 0 to expand
+        titleRowFrame.columnconfigure(1, weight=0)
+
+        # Add the project title
+        proyekJudul = ttk.Label(titleRowFrame, text="[Project Name]",
+                                font=("Helvetica", 30, "bold"), foreground="#4966FF")
+        proyekJudul.grid(row=0, column=0, sticky="w")  # Place in the first column
+
+        # Add the project start date beside the title
+        proyekTanggalMulai = ttk.Label(titleRowFrame, text="09-12-2024",
+                                    font=("Helvetica", 13, "italic"), foreground="red")
+        proyekTanggalMulai.grid(row=0, column=1, sticky="w", padx=(0, 15))  # Place in the second column
+
+        MAX_DESC_LENGTH = 200
+        desc_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae augue vitae ante feugiat placerat. Quisque pretium, nulla nec laoreet accumsan, nisl ante rhoncus ante, elementum tincidunt augue lacus posuere "
+        if len(desc_text) > MAX_DESC_LENGTH:
+            desc_text = desc_text[:MAX_DESC_LENGTH] + "..."
+        style.configure(
+            "ProjectLabel.TLabel",
+            background="SystemButtonFace",  # Matches default background of ttk frames
+            font=("Helvetica", 13)
+        )
+        descLabel = ttk.Label(
+            leftProyekFrame,
+            style="ProjectLabel.TLabel",
+            text=desc_text,
+            wraplength=600,  # Ensure text still wraps within the card
+            justify="left"   # Align text to the left
+        )
+        descLabel.pack(anchor="w", pady=(10, 0))
+
+        # Create a container frame for the buttons
+        buttonsFrame = ttk.Frame(leftProyekFrame)
+        buttonsFrame.pack(anchor="w", pady=(10, 0))  # Pack the frame below the description
+
+        # Add the delete button
+        # Store the PhotoImage objects as instance variables
+        self.deleteProyekImgButton = tk.PhotoImage(file="img/deleteProyek.png")
+        self.editProyekImgButton = tk.PhotoImage(file="img/editProyek.png")
+
+        # Add the delete button
+        
+        deleteProyekButton = tk.Button(
+            buttonsFrame,
+            image=self.deleteProyekImgButton,  # Using the instance variable
+            borderwidth=0,
+            cursor="hand2",
+            command=self.displayDeleteProyek  # Remove parentheses to pass the function reference
+        )
+        deleteProyekButton.pack(side=tk.LEFT, padx=(0, 10))  # Add right padding
+
+        # Add the edit button
+        editProyekButton = tk.Button(
+            buttonsFrame,
+            image=self.editProyekImgButton,  # Using the instance variable
+            borderwidth=0,
+            cursor="hand2",
+            command=self.open_edit_proyek_window  # Remove parentheses to pass the function reference
+        )
+        editProyekButton.pack(side=tk.LEFT)
+
+        # Add the 4-grid layout
+        gridFrame = ttk.Frame(leftProyekFrame)
+        gridFrame.pack(fill=tk.BOTH, expand=True, pady=(20, 0))
+
+        # Configure the grid layout with 2 rows and 2 columns
+        gridFrame.columnconfigure(0, weight=1, uniform="grid")
+        gridFrame.columnconfigure(1, weight=1, uniform="grid")
+        gridFrame.rowconfigure(0, weight=1, uniform="grid")
+        gridFrame.rowconfigure(1, weight=1, uniform="grid")
+        
+        def create_grid_with_pie_chart(parent, percentage, description):
+            # Create a CTkFrame with rounded corners and border
+            frame = ctk.CTkFrame(
+                parent, 
+                corner_radius=15, 
+                fg_color="#FFFFFF", 
+                border_color="#7A7E93", 
+                border_width=2
+            )
+            frame.grid_propagate(False)
+            frame.configure(width=270, height=180)
+            frame.pack_propagate(False)
+
+            # Create a container for all content inside the frame
+            content_frame = ctk.CTkFrame(
+                frame, 
+                corner_radius=0, 
+                fg_color="#FFFFFF"  # Ensure consistent white background inside
+            )
+            content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+            # Create the pie chart and embed it into this frame
+            fig, ax = plt.subplots(figsize=(3, 3), dpi=100)
+            data = [percentage, 100 - percentage]
+            colors = ['#D1FF33', '#E0E0E0']
+            ax.pie(data, colors=colors, startangle=90, counterclock=False)
+
+            # Add the percentage text inside the circle
+            ax.text(0, 0.2, f'{percentage}%', ha='center', va='center', fontsize=18, color='#4966FF', fontweight='bold')
+
+            # Add the description text inside the circle below the percentage
+            ax.text(0, -0.3, description, ha='center', va='center', fontsize=12, color='black', fontweight='bold')
+
+            # Remove axes and adjust padding
+            ax.axis('equal')
+            ax.set_position([0.05, 0.05, 0.9, 0.9])
+
+            # Embed the pie chart into the Tkinter frame
+            canvas = FigureCanvasTkAgg(fig, content_frame)
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.pack(fill=tk.BOTH, expand=True, padx=0, pady=0)
+
+            return frame
+
+
+
+        def create_grid_with_numbers(parent, number1, number2, label1, label2):
+           # Create a CTkFrame with rounded corners and border
+            frame = ctk.CTkFrame(
+                parent, 
+                corner_radius=15, 
+                fg_color="#FFFFFF", 
+                border_color="#7A7E93", 
+                border_width=2
+            )
+            frame.grid_propagate(False)
+            frame.configure(width=260, height=170)
+            frame.pack_propagate(False)
+
+            # Create a container for all content inside the frame
+            content_frame = ctk.CTkFrame(
+                frame, 
+                corner_radius=0, 
+                fg_color="#FFFFFF"  # Ensure consistent white background inside
+            )
+            content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+            # Add the top row for the numbers
+            numbers_frame = ttk.Frame(content_frame)
+            numbers_frame.pack(anchor="center", pady=(15, 10))
+
+            label_number1 = ttk.Label(numbers_frame, text=number1, font=("Helvetica", 25, "bold"), foreground="black", background="#FFFFFF")
+            label_number1.pack(side="left", padx=(5, 0))
+
+            colon_label = ttk.Label(numbers_frame, text=" : ", font=("Helvetica", 25, "bold"), foreground="black", background="#FFFFFF")
+            colon_label.pack(side="left", padx=(0, 0))
+
+            label_number2 = ttk.Label(numbers_frame, text=number2, font=("Helvetica", 25, "bold"), foreground="black", background="#FFFFFF")
+            label_number2.pack(side="right", padx=(0, 5))
+
+            # Add the bottom row for the labels
+            labels_frame = ttk.Frame(content_frame)
+            labels_frame.pack(fill="x", pady=(10, 0))
+
+            # Configure the grid layout for labels_frame
+            labels_frame.columnconfigure(0, weight=1)  # First half of the frame
+            labels_frame.columnconfigure(1, weight=1)  # Second half of the frame
+
+            # Left label (On Progress Tugas)
+            left_label = ttk.Label(
+                labels_frame,
+                text=label1,
+                font=("Helvetica", 12, "bold"),
+                background="#4966FF",
+                foreground="white",
+                wraplength=110,  # Ensure wrapping
+                anchor="center",
+                justify="center"
+            )
+            left_label.grid(row=0, column=0, padx=(2, 2), pady=0, sticky="ew")  # Sticky ensures full width in the column
+
+            # Right label (Completed Tugas)
+            right_label = ttk.Label(
+                labels_frame,
+                text=label2,
+                font=("Helvetica", 12, "bold"),
+                background="#4966FF",
+                foreground="white",
+                wraplength=110,  # Ensure wrapping
+                anchor="center",
+                justify="center"
+            )
+            right_label.grid(row=0, column=1, padx=(2, 5), pady=0, sticky="ew")  # Sticky ensures full width in the column
+
+            return frame
+
+
+
+
+        def create_grid_with_expenses(parent, total, estimated):
+            # Create a CTkFrame with rounded corners and border
+            frame = ctk.CTkFrame(
+                parent, 
+                corner_radius=15, 
+                fg_color="#FFFFFF", 
+                border_color="#7A7E93", 
+                border_width=2
+            )
+            frame.grid_propagate(False)
+            frame.configure(width=270, height=180)
+            frame.pack_propagate(False)
+
+            # Add labels
+            total_label = ttk.Label(frame, text="Total Pengeluaran", font=("Helvetica", 14, "bold"), foreground="black", background="#FFFFFF")
+            total_label.pack(anchor="w", pady=(20, 0), padx=10)
+
+            total_value_label = ttk.Label(frame, text=total, font=("Helvetica", 18, "bold"), foreground="#4966FF", background="#FFFFFF")
+            total_value_label.pack(anchor="w", padx=10)
+
+            estimated_label = ttk.Label(frame, text="Estimasi Pengeluaran", font=("Helvetica", 14, "bold"), foreground="black", background="#FFFFFF")
+            estimated_label.pack(anchor="w", pady=(10, 0), padx=10)
+
+            estimated_value_label = ttk.Label(frame, text=estimated, font=("Helvetica", 18, "bold"), foreground="#4966FF", background="#FFFFFF")
+            estimated_value_label.pack(anchor="w", padx=10)
+
+            return frame
+
+
+
+        def create_grid_with_spending_percentage(parent, percentage, description):
+            # Create a CTkFrame for the grid card with rounded corners and border
+            card = ctk.CTkFrame(
+                parent,
+                width=270,
+                height=180,
+                corner_radius=15,  # Rounded corners
+                fg_color="#FFFFFF",  # Background color
+                border_color="#7A7E93",  # Border color
+                border_width=2,  # Border width
+            )
+            card.grid_propagate(False)
+            card.pack_propagate(False)  # Prevent resizing to fit content
+
+            # Create an inner frame to hold the content
+            inner_frame = ttk.Frame(card, style="InnerFrame.TFrame")
+            inner_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+            # Set the style for the inner frame
+            style = ttk.Style()
+            style.configure("InnerFrame.TFrame", background="#FFFFFF")
+
+            # Create a vertical container for centering all elements
+            vertical_container = ttk.Frame(inner_frame, style="InnerFrame.TFrame")
+            vertical_container.pack(expand=True, fill="both")  # Vertically and horizontally centers everything
+
+            # Add percentage label
+            percentage_label = ttk.Label(
+                vertical_container,
+                text=percentage,
+                font=("Helvetica", 30, "bold"),
+                foreground="#4966FF",
+                background="#FFFFFF",  # Set background explicitly
+                anchor="center",  # Center-align widget
+                justify="center",  # Center-align text inside the widget
+            )
+            percentage_label.pack(pady=(25, 5))  # Add vertical padding
+
+            # Add description with centered alignment
+            description_label = ttk.Label(
+                vertical_container,
+                text=description,
+                font=("Helvetica", 13),
+                foreground="black",
+                background="#FFFFFF",  # Set background explicitly
+                wraplength=240,
+                justify="center",  # Center-align multi-line text
+                anchor="center",  # Center-align widget
+            )
+            description_label.pack(pady=(5, 10))  # Add vertical padding
+
+            return card
+
+
+
+
+
+
+        # Create each grid item
+        create_grid_with_pie_chart(gridFrame, 70, "Completed").grid(row=0, column=0, padx=(0, 5), pady=10)
+        create_grid_with_numbers(gridFrame, "11", "11", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
+        create_grid_with_expenses(gridFrame, "Rp42.500.000", "Rp100.000.000").grid(row=1, column=0, padx=(0, 5), pady=10)
+        create_grid_with_spending_percentage(gridFrame, "42%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
+
+        # Add a placeholder for the right frame
+        rightProyekFrame = ttk.Frame(proyekDetailFrame)
+        rightProyekFrame.grid(row=0, column=1, sticky="nsew")
+        rightProyekFrame.config(style="RightFrame.TFrame")
+        style.configure("RightFrame.TFrame", background="lightgray")
+
+    def open_edit_proyek_window(self):
+        # Create a new top-level window
+        edit_window = tk.Toplevel()
+        edit_window.title("Edit Proyek Detail")
+        edit_window.geometry("500x600")
+        edit_window.configure(bg="#FFFFFF")  # Set background color
+
+        
+        self.leftArrowButtonImg = tk.PhotoImage(file="img/left-arrow.png")
+        back_button = tk.Button(
+            edit_window,
+            image=self.leftArrowButtonImg,  # Using the class variable
+            borderwidth=0,
+            bg="#FFFFFF",
+            activebackground="#FFFFFF",
+            cursor="hand2",
+            command=self.onRightArrowClick
+        )
+        back_button.pack(anchor="w", padx=(20,0), pady=(20, 20))
+
+        # Title label
+        title_label = tk.Label(
+            edit_window,
+            text="[Edit Proyek Detail]",
+            font=("Helvetica", 20, "bold"),
+            anchor="w",
+            justify="left",
+            bg="#FFFFFF",
+            fg="black",
+        )
+        title_label.pack(fill="x", padx=20, pady=10)
+
+        # Project Title Section
+        project_title_label = ttk.Label(
+            edit_window,
+            text="Judul proyek",
+            font=("Helvetica", 14, "bold"),
+            foreground="#4966FF",
+            background="#FFFFFF"
+        )
+        project_title_label.pack(anchor="w", padx=20, pady=(10, 5))
+
+        project_title_container = ctk.CTkFrame(
+            edit_window,
+            corner_radius=10,  # Border radius
+            fg_color="#FFFFFF",
+            border_width=1,
+            border_color="#D3D3D3"  # Light gray border
+        )
+        project_title_container.pack(fill="x", padx=20, pady=(0, 20))
+
+        project_title_entry = tk.Entry(
+            project_title_container,
+            font=("Helvetica", 12),
+            bg="#FFFFFF",
+            bd=0,  # Remove default border
+            highlightthickness=0,  # Remove focus border
+        )
+        project_title_entry.insert(0, "My proyek no. 1")
+        project_title_entry.pack(fill="x", padx=10, pady=5)
+
+        # Description Section
+        description_label = ttk.Label(
+            edit_window,
+            text="Deskripsi",
+            font=("Helvetica", 14, "bold"),
+            foreground="#4966FF",
+            background="#FFFFFF"
+        )
+        description_label.pack(anchor="w", padx=20, pady=(10, 5))
+
+        description_container = ctk.CTkFrame(
+            edit_window,
+            corner_radius=10,
+            fg_color="#FFFFFF",
+            border_width=1,
+            border_color="#D3D3D3"
+        )
+        description_container.pack(fill="both", padx=20, pady=(0, 20))
+
+        description_scrollbar = tk.Scrollbar(description_container)
+        description_scrollbar.pack(side="right", fill="y")
+        
+        description_text = tk.Text(
+            description_container,
+            font=("Helvetica", 12),
+            wrap="word",
+            bg="#FFFFFF",
+            bd=0,  # Remove default border
+            highlightthickness=0,  # Remove focus border
+            yscrollcommand=description_scrollbar.set,
+            height=10,
+        )
+        description_text.insert(
+            "1.0",
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+            "Etiam vitae augue vitae ante feugiat placerat. Quisque pretium, "
+            "nulla nec laoreet accumsan, nisl ante rhoncus ante, elementum "
+            "tincidunt augue lacus posuere"
+        )
+        description_text.pack(fill="both", padx=10, pady=5)
+
+        # Save Button with rounded corners
+        save_button = ctk.CTkButton(
+            edit_window,
+            text="save",
+            font=("Helvetica", 16, "bold"),
+            fg_color="#4966FF",
+            text_color="#FFFFFF",
+            hover_color="#3B53B5",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=self.displaySaveProyek  # Example action
+        )
+        save_button.pack(side="bottom", pady=20)
+
+        edit_window.mainloop()
+        
+    def displayDeleteProyek(self):
+        # Create a new top-level window
+        delete_window = tk.Toplevel()
+        delete_window.title("Delete Confirmation")
+        delete_window.geometry("400x250")
+        delete_window.configure(bg="#FFFFFF")  # Set background color
+
+        self.trashIcon = "img/trash.png"        
+        self.trashImage = tk.PhotoImage(file=self.trashIcon)
+
+        trash_label = tk.Label(
+            delete_window,
+            image=self.trashImage,
+            bg="#FFFFFF"
+        )
+
+        trash_label.pack(pady=(30, 10))
+
+        # Add confirmation text
+        confirmation_label = tk.Label(
+            delete_window,
+            text="Yakin ingin menghapus?",
+            font=("Helvetica", 14, "bold"),
+            bg="#FFFFFF",
+            fg="#000000"
+        )
+        confirmation_label.pack(pady=(10, 20))
+
+        # Button frame
+        button_frame = tk.Frame(delete_window, bg="#FFFFFF")
+        button_frame.pack(pady=(10, 10))
+
+        # "Tidak" (No) button
+        no_button = ctk.CTkButton(
+            button_frame,
+            text="Tidak",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#000000",
+            text_color="#FFFFFF",
+            hover_color="#333333",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=delete_window.destroy  # Close the window on "No"
+        )
+        no_button.pack(side="left", padx=(0, 10))
+
+        # "Iya" (Yes) button
+        yes_button = ctk.CTkButton(
+            button_frame,
+            text="Iya",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#FF4B4B",
+            text_color="#FFFFFF",
+            hover_color="#CC0000",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=lambda: print("Proyek dihapus!")  # Replace with the actual delete functionality
+        )
+        yes_button.pack(side="left", padx=(10, 0))
+
+        delete_window.mainloop()
+    
+    def displaySaveProyek(self):
+        # Create a new top-level window
+        saveWindow = tk.Toplevel()
+        saveWindow.title("Save Confirmation")
+        saveWindow.geometry("400x250")
+        saveWindow.configure(bg="#FFFFFF")  # Set background color
+
+        self.saveIcon = "img/save.png"        
+        self.saveImage = tk.PhotoImage(file=self.saveIcon)
+
+        saveLabel = tk.Label(
+            saveWindow,
+            image=self.saveImage,
+            bg="#FFFFFF"
+        )
+
+        saveLabel.pack(pady=(30, 10))
+
+        # Add confirmation text
+        confirmationLabel = tk.Label(
+            saveWindow,
+            text="Yakin ingin menyimpan perubahan?",
+            font=("Helvetica", 14, "bold"),
+            bg="#FFFFFF",
+            fg="#000000"
+        )
+        confirmationLabel.pack(pady=(10, 20))
+
+        # Button frame
+        buttonFrame = tk.Frame(saveWindow, bg="#FFFFFF")
+        buttonFrame.pack(pady=(10, 10))
+
+        # "Tidak" (No) button
+        noButton = ctk.CTkButton(
+            buttonFrame,
+            text="Tidak",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#000000",
+            text_color="#FFFFFF",
+            hover_color="#333333",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=saveWindow.destroy  # Close the window on "No"
+        )
+        noButton.pack(side="left", padx=(0, 10))
+
+        # "Iya" (Yes) button
+        yesButton = ctk.CTkButton(
+            buttonFrame,
+            text="Simpan",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#4966FF",
+            text_color="#FFFFFF",
+            hover_color="#435CE1",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=lambda: print("Proyek dihapus!")  # Replace with the actual delete functionality
+        )
+        yesButton.pack(side="left", padx=(10, 0))
+
+        saveWindow.mainloop()
+
+
 
     def onAddButtonClick(self):
         print("Add button clicked!")
@@ -353,7 +950,21 @@ class DisplayProyek(tk.Frame):
     def onRightArrowClick(self):
         print("Right arrow clicked!")
         # Navigate to the DisplayTugas frame
-        self.controller.show_frame(DisplayTugas)
+        self.displayProyekById()
+        
+    def onDeleteButtonClick(self):
+        print("delete clicked!")
+    
+    def onEditButtonClick(self):
+        print("edit clicked!")
+    
+    def show_main_view(self):
+        # Clear the current view
+        for widget in self.main_frame.winfo_children():
+            widget.pack_forget()
+            
+        # Re-setup the original UI
+        self.setup_ui()
 
 # Instantiate and run the program
 if __name__ == "__main__":

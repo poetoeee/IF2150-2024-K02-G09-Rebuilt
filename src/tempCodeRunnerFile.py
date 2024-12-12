@@ -1,1 +1,0 @@
-import setup_env  # ini tolong hapus ini ada cuma gara gara python gue fucked up
