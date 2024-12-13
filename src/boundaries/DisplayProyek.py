@@ -102,7 +102,7 @@ class DisplayProyek(tk.Frame):
         
         self.textTop4 = ctk.CTkFrame(
             self.top4,
-            corner_radius=10,  # Rounded corners
+            corner_radius=int(10),  # Rounded corners
             fg_color="#4966FF",    # Background color
             bg_color="transparent"  # Transparent background
         )
@@ -390,10 +390,7 @@ class DisplayProyek(tk.Frame):
         leftProyekFrame = ttk.Frame(proyekDetailFrame)
         leftProyekFrame.grid(row=0, column=0, sticky="nsew")  # Fill the first column
 
-        # Add a background color for visibility
-        leftProyekFrame.config(style="LeftFrame.TFrame")
         style = ttk.Style()
-        style.configure("LeftFrame.TFrame")
 
         # Add a back button
         back_button = ttk.Button(leftProyekFrame, text="← Back",
@@ -692,8 +689,9 @@ class DisplayProyek(tk.Frame):
         # Add a placeholder for the right frame
         rightProyekFrame = ttk.Frame(proyekDetailFrame)
         rightProyekFrame.grid(row=0, column=1, sticky="nsew")
-        rightProyekFrame.config(style="RightFrame.TFrame")
-        style.configure("RightFrame.TFrame", background="lightgray")
+        # Integrate DisplayTugas into rightProyekFrame
+        displayTugas = DisplayTugas(rightProyekFrame, controller=self.controller)
+        displayTugas.pack(fill="both", expand=True)
 
     def open_edit_proyek_window(self):
         # Create a new top-level window
