@@ -1,46 +1,47 @@
 class TugasProyek:
-    def __init__(self, idTugas = None, judulTugas = "", descTugas = "", biayaTugas = None, statusProyek = "", idProyekOfTugas = None):
+    def __init__(self, idTugas = None, judulTugas = "", descTugas = "", biayaTugas = None, statusTugas = "", idProyekOfTugas = ""):
         self.idTugas = idTugas
         self.judulTugas = judulTugas
         self.descTugas = descTugas
         self.biayaTugas = biayaTugas
-        self.statusProyek = statusProyek
+        self.statusTugas = statusTugas
         self.idProyekOfTugas = idProyekOfTugas
-        
 
-    def get_idTugas(self):
+    def getIdTugas(self):
         return self.idTugas
     
-    def set_idTugas(self,idTugas):
+    def setIdTugas(self, idTugas):
         self.idTugas = idTugas
 
-    def get_judulTugas(self):
-        return self.get_judulTugas
-        
-    def set_judulTugas(self, judulTugas):
-        self.judulTugas= judulTugas
+    def getJudulTugas(self):
+        return self.judulTugas
+    
+    def setJudulTugas(self, judulTugas):
+        self.judulTugas = judulTugas
 
-    def get_descTugas(self):
+
+    def getDescTugas(self):
         return self.descTugas
+   
 
-    def set_descTugas(self,descTugas):
+    def setDescTugas(self, descTugas):
         self.descTugas = descTugas
-
-    def get_biayaTugas(self):
+ 
+    def getBiayaTugas(self):
         return self.biayaTugas
 
-    def set_biayaTugas(self, biayaTugas):
+    def setBiayaTugas(self, biayaTugas):
         self.biayaTugas = biayaTugas
 
-    def get_statusProyek(self):
-        return self.statusProyek
+    def getStatusTugas(self):
+        return self.statusTugas
 
-    def set_statusProyek(self, statusProyek):
-        self.statusProyek = statusProyek
+    def setStatusTugas(self, statusTugas):
+        self.statusTugas = statusTugas
 
-    def get_idProyekOfTugas(self):
+    def getIdProyekOfTugas(self):
         return self.idProyekOfTugas
-
-    def set_idProyekOfTugas(self, idProyekOfTugas):
+    
+    def setIdProyekOfTugas(self, idProyekOfTugas):
         self.idProyekOfTugas = idProyekOfTugas
 
