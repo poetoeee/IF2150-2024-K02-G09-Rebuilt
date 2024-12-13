@@ -27,7 +27,7 @@ class ProjectUI:
     def create_biaya_frame(self):
         """Creates the bottom 'Biaya' section with a scrollable table."""
         biaya_frame = ttk.Frame(self.root, padding=10, borderwidth=2, relief="ridge")
-        biaya_frame.place(relx=0.5, rely=0.5, relwidth=0.7, relheight=0.45, anchor="n")
+        biaya_frame.place(relx=0.5, rely=0.5, relwidth=0.9, relheight=0.45, anchor="n")
 
         # Header
         ttk.Label(biaya_frame, text="[Biaya]", font=("Arial", 14, "bold")).pack(anchor="w", padx=10, pady=5)
@@ -103,11 +103,11 @@ class ProjectUI:
 
         # Total Label
         total_label = ttk.Label(bottom_frame, text="       TOTAL\n Rp432.000,00", font=("Arial", 20, "bold"), bootstyle="success")
-        total_label.pack(side="top", pady= 20, padx= 50)
+        total_label.pack(side="top", pady= 20, padx= 20)
 
         # Add Button
         add_btn = ttk.Button(bottom_frame, text="➕  Add", bootstyle="primary", command=self.add_biaya)
-        add_btn.pack(side="bottom", pady=50, padx=55 )
+        add_btn.pack(side="bottom", pady=10, padx=55 )
 
     def add_biaya(self):
         """Action for Add Biaya."""
