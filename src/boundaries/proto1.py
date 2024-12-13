@@ -35,7 +35,7 @@ class ProjectUI:
 
         # Frame Kiri - Scrollable Tabel Biaya (diperkecil)
         left_frame = ttk.Frame(biaya_frame, borderwidth=2, relief="groove")
-        left_frame.place(relx=0, rely=0.15, relwidth=0.7, relheight=0.8)  # Tinggi diperkecil dengan relheight=0.9
+        left_frame.place(relx=0.05, rely=0.15, relwidth=0.65, relheight=0.8)  # Tinggi diperkecil dengan relheight=0.9
 
         self.create_scrollable_table(left_frame)
 
