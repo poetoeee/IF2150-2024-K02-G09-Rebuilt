@@ -124,8 +124,7 @@ class PengelolaBiaya:
                     keteranganBiaya = ?,
                     hargaSatuanBiaya = ?,
                     quantityBiaya = ?,
-                    totalBiaya = ?,
-                    idTugasOfBiaya = ?
+                    totalBiaya = ?
                 WHERE idBiaya = ?
             """
 
@@ -135,7 +134,6 @@ class PengelolaBiaya:
                 biayaEditted.gethargaSatuanBiaya(),
                 biayaEditted.getquantityBiaya(),
                 biayaEditted.gettotalBiaya(),
-                biayaEditted.getidTugasOfBiaya(),
                 biayaEditted.getidBiaya()
             )
             cursor.execute(query, values)
@@ -174,7 +172,7 @@ class PengelolaBiaya:
             return biayaArray
         
         except Exception as err:
-            print(f"Error fetching biaya for proyek {id_proyek}: {err}")
+            print(f"Error fetching biaya for proyek {id_tugas}: {err}")
             return []
         
         finally:

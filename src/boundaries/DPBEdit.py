@@ -83,19 +83,17 @@ class DisplayPopEdit:
         text_box.grid(row=9, column=0, padx=40, pady=10, sticky="ew")  # Sticky east-west agar melebar
 
         # Save Button
-        save_image = Image.open("../img/saveButton.png")
-        save_image = save_image.resize((150, 60))  # Ubah ukuran gambar sesuai keperluan
-        save_photo = ImageTk.PhotoImage(save_image)
+        # save_image = Image.open("../img/saveButton.png")
+        # save_image = save_image.resize((150, 60))  # Ubah ukuran gambar sesuai keperluan
+        # save_photo = ImageTk.PhotoImage(save_image)
 
         saveButton = ctk.CTkButton(
             formWindow,
-            text="",  # Hapus teks karena menggunakan gambar
-            image=save_photo,
+            text="SAVE",  # Hapus teks karena menggunakan gambar
             command=lambda: self.saveData(entry1, entry2, entry3, text_box),
-            fg_color="#EBEBEB",
             hover_color="lightgray"
         )
-        saveButton.image = save_photo  # Penting untuk mencegah garbage collection
+        # saveButton.image = save_photo  # Penting untuk mencegah garbage collection
         saveButton.grid(row=10, column=0, pady=20, padx = 30, sticky="e")
 
 
@@ -119,7 +117,8 @@ class DisplayPopEdit:
                 hargaSatuanBiaya=harga_satuan,
                 quantityBiaya=kuantitas,
                 keteranganBiaya=deskripsi,
-                totalBiaya= 0
+                totalBiaya= 0,
+                idBiaya=1
                 # statusTugas=self.fields["Status Proyek"].get().strip() or "Not Started"
             )
             # print(f"Tipe controller: {type(self.controller)}")

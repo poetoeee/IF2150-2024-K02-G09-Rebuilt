@@ -1,5 +1,8 @@
 import tkinter as tk
 import customtkinter as ctk
+from controllers.PengelolaBiaya import PengelolaBiaya
+# from ..entities.Biaya import Biaya
+from boundaries.DPBEdit import DisplayPopEdit
 
 class ProjectUI:
     def __init__(self, root):
@@ -106,6 +109,9 @@ class ProjectUI:
     def on_edit(self):
         """Action for Edit Button."""
         print("Edit button clicked")
+        controller = PengelolaBiaya() # Replace with an actual controller instance if available
+        editor = DisplayPopEdit(controller)
+        editor.run()
 
     def on_delete(self):
         """Action for Delete Button."""
