@@ -3,6 +3,7 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from tkinter import scrolledtext
 from PIL import Image, ImageTk
+from entities.Biaya import Biaya
 
 class DisplayPop:
     def __init__(self, controller):
@@ -92,7 +93,7 @@ class DisplayPop:
         formWindow.grid_columnconfigure(0, weight=1)  # Column 0 will take most of the space (for entry fields)
         formWindow.grid_columnconfigure(1, weight=0)  # Column 1 takes no space
 
-        imgIya = Image.open("img/saveButton.png")  # Replace with your image path for the "Save" button
+        imgIya = Image.open("../img/saveButton.png")  # Replace with your image path for the "Save" button
         photoIya = ImageTk.PhotoImage(imgIya)
 
         # Create the "Iya" (Save) button and apply the custom style
