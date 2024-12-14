@@ -179,6 +179,7 @@ class DisplayTugas(tk.Frame):
         
     def displayPerTugas(self, idTugas):
         tugas = self.controller.getTugasById(idTugas)
+        print(idTugas)
 
         if not tugas:
             print("Tugas not found.")

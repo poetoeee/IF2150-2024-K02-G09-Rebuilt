@@ -76,6 +76,8 @@ class DisplayBiaya:
     def create_scrollable_table(self, parent):
         """Creates a scrollable table populated from the database using PengelolaBiaya."""
         # Frame Scrollable
+        for widget in parent.winfo_children():
+            widget.destroy()
         outer_frame = ctk.CTkFrame(parent, fg_color="#FFFFFF")
         outer_frame.pack(fill="both", expand=True)
 
@@ -162,7 +164,8 @@ class DisplayBiaya:
 
 
     def add_biaya(self):
-        DisplayPopAdd(self.controller, self.refresh_biaya_section)
+        DisplayPopAdd(self.controller, self.refresh_biaya_section, self.idTugas)
+
 
 
     def refresh_biaya_table(self):
@@ -171,7 +174,13 @@ class DisplayBiaya:
 
     def refresh_biaya_section(self):
         """Refresh tabel biaya dan total biaya."""
+        # Hapus semua widget dalam biaya frame
+        for widget in self.parent.winfo_children():
+            widget.destroy()
+
+        # Buat ulang bagian biaya
         self.create_biaya_section()
+
 
 
     def on_edit(self, biaya):
@@ -211,9 +220,10 @@ class DisplayBiaya:
         popup.grab_set()
         
 class DisplayPopAdd:
-    def __init__(self, controller, refresh_callback):
+    def __init__(self, controller, refresh_callback, idTugas):
         self.controller = controller
         self.refresh_callback = refresh_callback
+        self.idTugas = idTugas  # Simpan ID Tugas
 
         # Toplevel window sebagai popup
         self.window = ctk.CTkToplevel()
@@ -288,8 +298,8 @@ class DisplayPopAdd:
                 totalBiaya=total_biaya
             )
 
-            # Simpan ke database via controller
-            if self.controller.addBiaya(new_biaya):
+            # Pastikan `idTugas` dikirim sebagai parameter
+            if self.controller.addBiaya(new_biaya, self.idTugas):
                 messagebox.showinfo("Sukses", "Data Biaya berhasil ditambahkan.")
                 self.refresh_callback()
                 self.window.destroy()  # Tutup popup
@@ -297,6 +307,7 @@ class DisplayPopAdd:
                 messagebox.showerror("Error", "Gagal menambahkan Biaya.")
         except ValueError as e:
             messagebox.showerror("Error", f"Input tidak valid: {e}")
+
 
 class DisplayPopEdit:
     def __init__(self, controller, biaya, refresh_callback):

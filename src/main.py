@@ -1,4 +1,4 @@
-import setup_env  # ini tolong hapus ini ada cuma gara gara python gue fucked up
+# import setup_env  # ini tolong hapus ini ada cuma gara gara python gue fucked up
 
 from MainApplication import MainApp  # Ensure the capitalization matches the filename.
 

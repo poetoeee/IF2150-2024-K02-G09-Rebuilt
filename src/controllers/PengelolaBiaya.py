@@ -2,45 +2,36 @@ from entities.Biaya import Biaya
 from database.db_connection import get_connection
 
 class PengelolaBiaya:
-    def addBiaya(self, biaya):
+    def addBiaya(self, biaya, idTugas):
         connection = get_connection()
         if not connection:
-            print("Failed to get database connection.")
             return False
-    
+
         try:
             cursor = connection.cursor()
-            query = '''
-                    INSERT INTO t_biaya (
-                    namaBarangBiaya,
-                    keteranganBiaya,
-                    hargaSatuanBiaya,
-                    quantityBiaya,
-                    totalBiaya, 
-                    idTugasOfBiaya
-                ) VALUES (?, ?, ?, ?, ?, ?)
-            '''
-
+            query = """
+                INSERT INTO t_biaya (namaBarangBiaya, hargaSatuanBiaya, quantityBiaya, totalBiaya, keteranganBiaya, idTugasOfBiaya)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """
             values = (
                 biaya.getnamaBarangBiaya(),
-                biaya.getketeranganBiaya(),
                 biaya.gethargaSatuanBiaya(),
                 biaya.getquantityBiaya(),
                 biaya.gettotalBiaya(),
-                biaya.getidTugasOfBiaya()            
-                )
+                biaya.getketeranganBiaya(),
+                idTugas  # Pastikan ID tugas ditambahkan
+            )
             cursor.execute(query, values)
             connection.commit()
             return True
-        
         except Exception as err:
-            print(f"Error creating biaya: {err}")
+            print(f"Error adding biaya: {err}")
             return False
-        
         finally:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
+
             
     def getAllBiaya(self):
         connection = get_connection()
