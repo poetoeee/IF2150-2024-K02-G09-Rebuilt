@@ -17,7 +17,8 @@ class PengelolaBiaya:
                     hargaSatuanBiaya,
                     quantityBiaya,
                     totalBiaya
-                ) VALUES (?, ?, ?, ?, ?)
+                    idTugasOfBiaya
+                ) VALUES (?, ?, ?, ?, ?, ?)
             '''
 
             values = (
@@ -25,7 +26,8 @@ class PengelolaBiaya:
                 biaya.getketeranganBiaya(),
                 biaya.gethargaSatuanBiaya(),
                 biaya.getquantityBiaya(),
-                biaya.gettotalBiaya()            
+                biaya.gettotalBiaya(),
+                biaya.getidTugasOfBiaya()            
                 )
             cursor.execute(query, values)
             connection.commit()
