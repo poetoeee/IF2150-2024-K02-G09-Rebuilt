@@ -264,3 +264,26 @@ class PengelolaProyek:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
+
+    def getTugasStatusCounts(self, idProyek):
+        # Fetch all tugas for the given project
+        tugasList = self.tugas_manager.getAllTugas(idProyek)
+
+        if not tugasList:
+            print("No tugas found for the given project.")
+            return {"done": 0, "on_progress": 0}
+
+        # Initialize counters
+        done_count = 0
+        on_progress_count = 0
+
+        # Iterate through the list and count statuses
+        for tugas in tugasList:
+            status = tugas.statusTugas.lower()
+            if status == "done":
+                done_count += 1
+            elif status == "on progress":  # Adjust the string if needed
+                on_progress_count += 1
+
+        # Return the counts
+        return [done_count, on_progress_count]
