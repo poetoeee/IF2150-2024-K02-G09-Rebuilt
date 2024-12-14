@@ -272,7 +272,7 @@ class DisplayProyek(tk.Frame):
                         values=list(sort_options.keys()),  # Set the dropdown options
                         state="readonly",          # Makes the combobox read-only (can't type in)
                         width=20)                  # Width of the dropdown
-        dropdown.set("ID (Descending)")  # Default value
+        dropdown.set("ID (Ascending)")  # Default value
         dropdown.pack(side="right", padx=(350,5), pady=10)
         dropdown.bind("<<ComboboxSelected>>", self.on_sort_selected)
         
