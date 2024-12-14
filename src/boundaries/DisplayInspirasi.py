@@ -39,7 +39,7 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
         title_add_frame = ttk.Frame(header_frame)
         title_add_frame.grid(row=1, column=0, sticky="w", pady=(10, 0))
 
-        title_label = ttk.Label(title_add_frame, text="[Inspirasi Renovasi]", font=("Helvetica", 35, "bold"), foreground="#4966FF", background="#FFFFFF")
+        title_label = ttk.Label(title_add_frame, text="[Inspirasi Renovasi]", font=("Helvetica", 35, "bold"), foreground="#4966FF")
         title_label.pack(side=tk.LEFT)
 
         add_icon = Image.open("img/addButton.png")
@@ -53,7 +53,6 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
             self.current_frame,
             text="Kumpulkan referensi foto yang dapat menginspirasimu dalam merancang blueprint renovasi yang menarik!",
             font=("Helvetica", 15),
-            background="#FFFFFF",
         )
         subtitle_label.pack(anchor="w", pady=(10, 20))
 
@@ -111,7 +110,7 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
         self.current_frame = ttk.Frame(self, padding=(50, 30))
         self.current_frame.pack(fill=tk.BOTH, expand=True)
 
-        back_button = ttk.Button(self.current_frame, text="← Back to Project List", command=self.showInspirasiLists)
+        back_button = ttk.Button(self.current_frame, text="← Back to Inspirasi List", command=self.showInspirasiLists)
         back_button.pack(anchor="w", pady=(0, 20))
 
         content_frame = ttk.Frame(self.current_frame)
@@ -146,10 +145,10 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
         # Delete Button
         delete_button = ttk.Button(
             action_frame,
-            text="", 
+            cursor="hand2", 
             image=delete_image, 
             style="Custom.TButton", 
-            command=lambda: self.delete_inspirasi(inspirasi)
+            command=lambda: self.displayDeleteProyek(inspirasi.idInspirasi)
         )
         delete_button.image = delete_image 
         delete_button.pack(side=tk.LEFT, padx=10)
@@ -167,13 +166,13 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
         right_frame = ttk.Frame(content_frame)
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        title_label = ttk.Label(right_frame, text=f"[{inspirasi.judulInspirasi}]", font=("Helvetica", 35, "bold"), foreground="#4966FF", background="#FFFFFF")
+        title_label = ttk.Label(right_frame, text=f"[{inspirasi.judulInspirasi}]", font=("Helvetica", 35, "bold"), foreground="#4966FF")
         title_label.pack(anchor="w", pady=(10, 10))
 
-        description_label = ttk.Label(right_frame, text=inspirasi.descInspirasi, font=("Helvetica", 15), wraplength=500, background="#FFFFFF")
+        description_label = ttk.Label(right_frame, text=inspirasi.descInspirasi, font=("Helvetica", 15), wraplength=500)
         description_label.pack(anchor="w", pady=(10, 20))
 
-        link_label = ttk.Label(right_frame, text=inspirasi.linkInspirasi, font=("Helvetica", 12), foreground="blue", background="#FFFFFF")
+        link_label = ttk.Label(right_frame, text=inspirasi.linkInspirasi, font=("Helvetica", 12), foreground="blue")
         link_label.pack(anchor="w", pady=(10, 20))
 
 
@@ -188,6 +187,79 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
             else:
                 messagebox.showerror("Error", "Gagal menghapus Inspirasi.")
 
+    def displayDeleteProyek(self, idInspirasi):
+        # Create a new top-level window
+        delete_window = tk.Toplevel()
+        delete_window.title("Delete Confirmation")
+        delete_window.geometry("400x250")
+        delete_window.configure(bg="#FFFFFF")  # Set background color
+
+        self.trashIcon = "img/trash.png"        
+        self.trashImage = tk.PhotoImage(file=self.trashIcon)
+
+        trash_label = tk.Label(
+            delete_window,
+            image=self.trashImage,
+            bg="#FFFFFF"
+        )
+
+        trash_label.pack(pady=(30, 10))
+
+        # Add confirmation text
+        confirmation_label = tk.Label(
+            delete_window,
+            text="Yakin ingin menghapus?",
+            font=("Helvetica", 14, "bold"),
+            bg="#FFFFFF",
+            fg="#000000"
+        )
+        confirmation_label.pack(pady=(10, 20))
+
+        # Button frame
+        button_frame = tk.Frame(delete_window, bg="#FFFFFF")
+        button_frame.pack(pady=(10, 10))
+
+        # "Tidak" (No) button
+        no_button = ctk.CTkButton(
+            button_frame,
+            text="Tidak",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#000000",
+            text_color="#FFFFFF",
+            hover_color="#333333",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=delete_window.destroy  # Close the window on "No"
+        )
+        no_button.pack(side="left", padx=(0, 10))
+        
+        def delete_and_close():
+            success = self.controller.deleteInspirasi(idInspirasi)
+            if success:
+                tk.messagebox.showinfo("Success", "Inspirasi berhasil dihapus!")
+                delete_window.destroy()  # Close the delete confirmation window
+                self.showInspirasiLists()
+            else:
+                tk.messagebox.showerror("Error", "Gagal menghapus Inspirasi. Silakan coba lagi.")
+
+        # "Iya" (Yes) button
+        yes_button = ctk.CTkButton(
+            button_frame,
+            text="Iya",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#FF4B4B",
+            text_color="#FFFFFF",
+            hover_color="#CC0000",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=lambda: delete_and_close()
+        )
+        yes_button.pack(side="left", padx=(10, 0))
+
+        delete_window.mainloop()
+
     def edit_inspirasi(self, inspirasi):
         popup = tk.Toplevel()
         popup.title("Edit Inspirasi")
@@ -201,18 +273,17 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
             text="[Edit Inspirasi Detail]",
             font=("Helvetica", 25, "bold"),
             foreground="#000000", 
-            background="#FFFFFF",
             # anchor="w"
         )
         header_label.grid(row=0, column=0, sticky="w", pady=(0, 20)) 
 
-        title_label = ttk.Label(main_frame, text="Judul Inspirasi:", font=("Helvetica", 15, "bold"), foreground="#4966FF", background="#FFFFFF")
+        title_label = ttk.Label(main_frame, text="Judul Inspirasi:", font=("Helvetica", 15, "bold"), foreground="#4966FF")
         title_label.grid(row=1, column=0, sticky="w", pady=(5, 0))
         title_var = tk.StringVar(value=inspirasi.judulInspirasi)
         title_entry = ttk.Entry(main_frame, textvariable=title_var, font=("Helvetica", 12))
         title_entry.grid(row=2, column=0, sticky="ew", pady=(0, 10))
 
-        description_label = ttk.Label(main_frame, text="Deskripsi:", font=("Helvetica", 15, "bold"), foreground="#4966FF", background="#FFFFFF")
+        description_label = ttk.Label(main_frame, text="Deskripsi:", font=("Helvetica", 15, "bold"), foreground="#4966FF")
         description_label.grid(row=3, column=0, sticky="w", pady=(5, 0))
 
         description_frame = ttk.Frame(main_frame)
@@ -228,7 +299,7 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
 
         description_entry.config(yscrollcommand=description_scrollbar.set)
 
-        image_label = ttk.Label(main_frame, text="File gambar:", font=("Helvetica", 15, "bold"), foreground="#4966FF", background="#FFFFFF")
+        image_label = ttk.Label(main_frame, text="File gambar:", font=("Helvetica", 15, "bold"), foreground="#4966FF")
         image_label.grid(row=5, column=0, sticky="w", pady=(5, 0))
         image_path_var = tk.StringVar(value=inspirasi.imageInspirasi)
         image_entry = ttk.Entry(main_frame, textvariable=image_path_var, font=("Helvetica", 12))
@@ -242,7 +313,7 @@ class DisplayInspirasi(tk.Frame):  # Ensure it inherits from ttk.Frame
         browse_button = ttk.Button(main_frame, text="Masukkan gambar", command=browse_image)
         browse_button.grid(row=7, column=0, pady=5, sticky="w")
 
-        link_label = ttk.Label(main_frame, text="Link (opsional):", font=("Helvetica", 15, "bold"), foreground="#4966FF", background="#FFFFFF")
+        link_label = ttk.Label(main_frame, text="Link (opsional):", font=("Helvetica", 15, "bold"), foreground="#4966FF")
         link_label.grid(row=8, column=0, sticky="w", pady=(5, 0))
         link_var = tk.StringVar(value=inspirasi.linkInspirasi)
         link_entry = ttk.Entry(main_frame, textvariable=link_var, font=("Helvetica", 12))
