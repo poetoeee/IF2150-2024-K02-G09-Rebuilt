@@ -724,8 +724,13 @@ class DisplayProyek(tk.Frame):
 
         proyek = self.controller.getProyekById(idProyek)
 
+        count = self.controller.getTugasStatusCounts(idProyek)
+        
+        print(count[0], count[1])
+
         if proyek:
-            progress = proyek.get_progressProyek()
+            progress = count[0]/(count[1] + count[0])
+            progress = round(progress, 2)  # Round to 2 decimal places
             print(f"Progress for project {idProyek}: {progress}")
             create_grid_with_pie_chart(
                 gridFrame, 
@@ -735,7 +740,9 @@ class DisplayProyek(tk.Frame):
         else:
             print(f"No project found with id {idProyek}")
 
-        create_grid_with_numbers(gridFrame, "11", "11", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
+        
+
+        create_grid_with_numbers(gridFrame, f"{count[1]}", f"{count[0]}", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
         create_grid_with_expenses(gridFrame, "Rp42.500.000", "Rp100.000.000").grid(row=1, column=0, padx=(0, 5), pady=10)
         create_grid_with_spending_percentage(gridFrame, "42%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
 
@@ -747,6 +754,8 @@ class DisplayProyek(tk.Frame):
         # In displayProyekById method:
         displayTugas = DisplayTugas(rightProyekFrame, controller=self.tugas_controller, main_frame=proyekDetailFrame, idProyekOfTugas = idProyek)
         displayTugas.pack(fill="both", expand=True)
+        # self.refresh_display_proyek_by_id(idProyek)
+
 
     def open_edit_proyek_window(self, idProyek):
         proyek = self.controller.getProyekById(idProyek)
