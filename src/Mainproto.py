@@ -1,4 +1,4 @@
-from boundaries.proto2 import DisplayBiaya
+from boundaries.DisplayBiaya import DisplayBiaya
 import customtkinter as ctk
 
 def main():
