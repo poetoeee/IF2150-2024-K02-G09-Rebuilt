@@ -56,14 +56,15 @@ class PengelolaProyek:
                 cursor.close()
             connection.close()
 
-    def getAllProyek(self, asc):
-        """Retrieve all projects from database.
+    def getAllProyek(self, sort_by="progressProyek", asc=True):
+        """Retrieve all projects from database with dynamic sorting.
 
         Args:
-            asc: Boolean for ascending/descending order
+            sort_by: Column name to sort by ("idProyek" or "progressProyek").
+            asc: Boolean for ascending/descending order.
 
         Returns:
-            list: List of Proyek objects
+            list: List of Proyek objects.
         """
         connection = get_connection()
         if not connection:
@@ -71,14 +72,20 @@ class PengelolaProyek:
 
         try:
             cursor = connection.cursor()
+            
+            # Validate and sanitize the sort_by input
+            valid_sort_columns = ["idProyek", "progressProyek"]
+            if sort_by not in valid_sort_columns:
+                sort_by = "progressProyek"  # Default to progressProyek if invalid column
+
             sort_order = 'ASC' if asc else 'DESC'
-            query = f"SELECT * FROM t_proyek ORDER BY progressProyek {sort_order}"
+            query = f"SELECT * FROM t_proyek ORDER BY {sort_by} {sort_order}"
             cursor.execute(query)
 
             proyekArray = []
             for (idProyek, judulProyek, descProyek, progressProyek,
-                 biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
-                 tanggalSelesaiProyek, statusProyek) in cursor.fetchall():
+                biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
+                tanggalSelesaiProyek, statusProyek) in cursor.fetchall():
 
                 proyek = Proyek(
                     idProyek=idProyek,
@@ -103,6 +110,7 @@ class PengelolaProyek:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
+
 
     def getProyekById(self, idProyekInput):
         """Retrieve a project by its ID.

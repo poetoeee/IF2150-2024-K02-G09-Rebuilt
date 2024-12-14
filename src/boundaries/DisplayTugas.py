@@ -143,20 +143,39 @@ class DisplayTugas(tk.Frame):
 
 
     def displayPerTugas(self, idTugas):
-        # Clear all existing content, including left and right frames
+        # Clear all existing content
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
-        # Create a new container for the detailed task view
-        taskDetailFrame = ttk.Frame(self.main_frame)
-        taskDetailFrame.pack(fill=tk.BOTH, expand=True, padx=20)
+        # Create a container for the task view
+        taskDetailFrame = tk.Frame(self.main_frame, bg="#FFFFFF")  # Add a background color for the container frame
+        taskDetailFrame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
-        # Add your content
-        taskFrame = tk.Frame(taskDetailFrame)
-        taskFrame.pack(fill=tk.BOTH, expand=True, padx=20)
+        # Configure grid layout to split into two halves
+        taskDetailFrame.rowconfigure(0, weight=1, uniform="half")  # Top frame
+        taskDetailFrame.rowconfigure(1, weight=1, uniform="half")  # Bottom frame
+        taskDetailFrame.columnconfigure(0, weight=1)
 
-        tugasName = tk.Label(taskFrame, text="yesss", font=("Arial", 16, "bold"))
-        tugasName.pack()
+        # Create the top frame
+        topFrame = tk.Frame(taskDetailFrame, bg="#DFF2FF")  # Add background color for the top frame
+        topFrame.grid(row=0, column=0, sticky="nsew")  # Occupy top half
+
+        # Create the bottom frame
+        bottomFrame = tk.Frame(taskDetailFrame, bg="#FFEEDD")  # Add background color for the bottom frame
+        bottomFrame.grid(row=1, column=0, sticky="nsew")  # Occupy bottom half
+
+        # Add content to the top frame
+        topLabel = tk.Label(topFrame, text="Top Frame Content", font=("Arial", 16, "bold"), bg="#DFF2FF")
+        topLabel.pack(padx=10, pady=10)
+        
+        topLabel2 = tk.Label(topFrame, text="Top Frame Content", font=("Arial", 16, "bold"), bg="#DFF2FF")
+        topLabel2.pack(padx=10, pady=10)
+
+        # Add content to the bottom frame
+        bottomLabel = tk.Label(bottomFrame, text="Bottom Frame Content", font=("Arial", 16, "bold"), bg="#FFEEDD")
+        bottomLabel.pack(padx=10, pady=10)
+
+
 
 
 

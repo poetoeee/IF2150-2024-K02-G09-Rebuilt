@@ -1,7 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from boundaries.DisplayProyek import DisplayProyek
+from boundaries.DisplayInspirasi import DisplayInspirasi
+
 from boundaries.DisplayTugas import DisplayTugas
+from controllers.PengelolaInspirasi import PengelolaInspirasi
+
 from controllers.PengelolaProyek import PengelolaProyek
 from controllers.PengelolaTugasProyek import PengelolaTugasProyek  # Import the correct controller for DisplayTugas
 
@@ -14,6 +18,7 @@ class MainApp(tk.Tk):
         # Initialize controllers
         self.proyek_controller = PengelolaProyek()
         self.tugas_controller = PengelolaTugasProyek()
+        self.inspirasi_controller = PengelolaInspirasi()
 
         # Create a container frame
         self.container = ttk.Frame(self)
@@ -37,11 +42,17 @@ class MainApp(tk.Tk):
         frame_controller_mapping = [
             (DisplayProyek, self.proyek_controller),
             (DisplayTugas, self.tugas_controller),
+            (DisplayInspirasi, self.inspirasi_controller),
         ]
         for FrameClass, controller in frame_controller_mapping:
-            frame = FrameClass(self.container, controller=controller)
+            # Check if the frame class accepts the 'app' parameter
+            if 'app' in FrameClass.__init__.__code__.co_varnames:
+                frame = FrameClass(self.container, controller=controller, app=self)
+            else:
+                frame = FrameClass(self.container, controller=controller)
+                
             self.frames[FrameClass] = frame
-            frame.grid(row=0, column=0, sticky="nsew")  # Use grid instead of pack
+            frame.grid(row=0, column=0, sticky="nsew")
 
     def show_frame(self, frame_class):
         """Raise the specified frame to the top."""

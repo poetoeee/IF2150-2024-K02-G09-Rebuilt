@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
 from boundaries.DisplayTugas import DisplayTugas
+from boundaries.DisplayInspirasi import DisplayInspirasi
 from entities.Proyek import Proyek
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
@@ -42,16 +43,14 @@ class ScrollableFrame(ttk.Frame):
         self.canvas.itemconfig(self.scrollable_frame_id, width=canvas_width)
 
 class DisplayProyek(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, app):
         super().__init__(parent)  # Call parent constructor with only the parent parameter
 
         self.controller = controller
-        self.parent = parent
-        self.pack(fill=tk.BOTH, expand=True)  # Use pack to make it appear
+        self.app = app
 
         self.main_frame = ttk.Frame(self, padding=(20, 10))
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10)
-        self.pack_propagate(False)
         
         self.setup_ui()
         
@@ -74,7 +73,7 @@ class DisplayProyek(tk.Frame):
             image=self.inspirasiButtonImg,  # Using the class variable
             borderwidth=0,
             cursor="hand2",
-            command=self.onRightArrowClick
+            command=lambda: self.app.show_frame(DisplayInspirasi)
         )
         inspirasiButton.grid(row=0, column=1, sticky="e")
 
@@ -197,7 +196,7 @@ class DisplayProyek(tk.Frame):
         canvas = tk.Canvas(self.main_frame, height=0.5, bg="#7A7E93", bd=0, highlightthickness=0)
         canvas.pack(fill=tk.X, pady=5)  # Add the canvas and make it stretch across the width of the window
         
-        canvas.create_line(0, 1, self.winfo_width(), 1, fill="white", width=2)
+        canvas.create_line(0, 1, self.winfo_width(), 1, fill="black", width=2)
 
         
         
@@ -235,15 +234,29 @@ class DisplayProyek(tk.Frame):
                        style="Transparent.TButton")  # Apply a custom style for transparency
         addButton.image = addButtonImg  # Keep a reference to the image (important to avoid garbage collection)
         addButton.pack(pady=10, padx=20, side="left")  # Packing the button after the title
-        
-        
+
+        # Customize the appearance of the Combobox
+        style.map(
+            "TCombobox",
+            fieldbackground=[("readonly", "#FFFFFF")],  # White background for the field
+            background=[("readonly", "#FFFFFF")],      # White background for the dropdown
+            foreground=[("readonly", "black")],        # Black text color
+            selectbackground=[("readonly", "#FFFFFF")], # Remove the blue highlight
+            selectforeground=[("readonly", "black")],   # Black text color for selected items
+        )
         # dropdown sort
-        dropdownOptions = ["date-asc", "date-desc", "progress-asc", "progress-desc"]
+        sort_options = {
+            "ID (Ascending)": ("idProyek", True),
+            "ID (Descending)": ("idProyek", False),
+            "Progress (Ascending)": ("progressProyek", True),
+            "Progress (Descending)": ("progressProyek", False),
+        }
+        self.sort_options = sort_options
         dropdown = ttk.Combobox(self.projectsContainerRow1, 
-                        values=dropdownOptions,  # Set the dropdown options
+                        values=list(sort_options.keys()),  # Set the dropdown options
                         state="readonly",          # Makes the combobox read-only (can't type in)
                         width=20)                  # Width of the dropdown
-        dropdown.set("date-asc")
+        dropdown.set("ID (Descending)")  # Default value
         dropdown.pack(side="right", padx=(350,5), pady=10)
         dropdown.bind("<<ComboboxSelected>>", self.on_sort_selected)
         
@@ -253,8 +266,14 @@ class DisplayProyek(tk.Frame):
 
         # Call the create_project_cards method
         # Fetch projects from the database
-        proyek_list = self.controller.getAllProyek(asc=True)  # Ensure this calls your controller
-        self.create_project_cards(proyek_list)
+        self.refresh_projects("idProyek", True)  # Default sorting
+    
+    def on_sort_selected(self, event):
+        """Handle dropdown selection for sorting."""
+        selected_option = event.widget.get()
+        if selected_option in self.sort_options:
+            sort_by, asc = self.sort_options[selected_option]
+            self.refresh_projects(sort_by, asc)
     
     def create_project_cards(self, proyek_list):
         """Dynamically creates project cards based on the list of Proyek objects."""
@@ -909,8 +928,8 @@ class DisplayProyek(tk.Frame):
             try:
                 # Collect data from fields
                 new_proyek = Proyek(
-                    judulProyek=fields["Judul proyek"].get_judulProyek(),
-                    descProyek=fields["Deskripsi"].get_descProyek(),
+                    judulProyek=fields["Judul proyek"].get(),  # Use .get() to retrieve text from Entry
+                    descProyek=fields["Deskripsi"].get(),      # Use .get() to retrieve text from Entry
                     progressProyek=0,
                     biayaProyek=0,
                     estimasiBiayaProyek=0,
@@ -919,15 +938,16 @@ class DisplayProyek(tk.Frame):
                 )
 
                 # Call the controller to save the project
-                success = self.controller.addProyek(new_proyek)
+                success = self.controller.addProyek(new_proyek)  # This should be implemented in your controller
                 if success:
                     tk.messagebox.showinfo("Success", "Proyek berhasil ditambahkan!")
                     add_window.destroy()
                     self.refresh_projects()
                 else:
                     tk.messagebox.showerror("Error", "Gagal menambahkan proyek.")
-            except ValueError as e:
-                tk.messagebox.showerror("Error", f"Invalid input: {e}")
+            except Exception as e:
+                tk.messagebox.showerror("Error", f"Terjadi kesalahan: {e}")
+
 
         save_button = ctk.CTkButton(
             add_window,
@@ -1095,6 +1115,10 @@ class DisplayProyek(tk.Frame):
         saveWindow.mainloop()
 
 
+    def onInspirasi(self):
+        print("Right arrow clicked!")
+        # Navigate to the DisplayTugas frame
+        command=lambda: self.controller.show_frame(DisplayInspirasi)
 
     def onAddButtonClick(self):
         print("Add button clicked!")
@@ -1118,9 +1142,9 @@ class DisplayProyek(tk.Frame):
         # Re-setup the original UI
         self.setup_ui()
     
-    def refresh_projects(self):
-        """Refresh the project cards by fetching updated data from the controller."""
-        proyek_list = self.controller.getAllProyek(asc=True)  # Ensure this calls your controller
+    def refresh_projects(self, sort_by="idProyek", asc=False):
+        """Refresh the project cards based on the selected sorting."""
+        proyek_list = self.controller.getAllProyek(sort_by=sort_by, asc=asc)
 
         # Clear existing project cards
         for widget in self.scrollable_projects_frame.scrollable_frame.winfo_children():
@@ -1130,7 +1154,9 @@ class DisplayProyek(tk.Frame):
         self.create_project_cards(proyek_list)
 
         # Reset the scrollable frame's scroll region
-        self.scrollable_projects_frame.canvas.configure(scrollregion=self.scrollable_projects_frame.canvas.bbox("all"))
+        self.scrollable_projects_frame.canvas.configure(
+            scrollregion=self.scrollable_projects_frame.canvas.bbox("all")
+        )
     
     def refresh_display_proyek_by_id(self, idProyek):
         """Refresh the detailed view of a specific project."""
@@ -1146,15 +1172,6 @@ class DisplayProyek(tk.Frame):
 
         # Re-display the updated project details
         self.displayProyekById(idProyek)
-
-
-    
-    def on_sort_selected(self, event):
-        sort_option = event.widget.get()
-        asc = "asc" in sort_option
-        proyek_list = self.controller.getAllProyek(asc=asc)
-        self.refresh_projects(proyek_list)
-
 
 
 # Instantiate and run the program
