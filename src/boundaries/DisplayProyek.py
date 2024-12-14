@@ -739,8 +739,8 @@ class DisplayProyek(tk.Frame):
                 "Completed"
             ).grid(row=0, column=0, padx=(0, 5), pady=10)
             create_grid_with_numbers(gridFrame, "0", "0", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
-            create_grid_with_expenses(gridFrame, f"{realBiaya}", f"{biaya}").grid(row=1, column=0, padx=(0, 5), pady=10)
-            create_grid_with_spending_percentage(gridFrame, f"{round((realBiaya / biaya) * 100, 2)}%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
+            create_grid_with_expenses(gridFrame, f"{0}", f"{0}").grid(row=1, column=0, padx=(0, 5), pady=10)
+            create_grid_with_spending_percentage(gridFrame, f"{0}%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
         
         else:
             print(count[0], count[1])
