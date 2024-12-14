@@ -5,16 +5,13 @@ from tkinter import scrolledtext
 from PIL import Image, ImageTk 
 from entities.Biaya import Biaya
 class DisplayPopAdd:
-    def __init__(self, controller):
-        ctk.set_appearance_mode("light")  # Set theme to light
-        ctk.set_default_color_theme("blue")
-
-        self.window = ctk.CTk()
+    def __init__(self, controller, refresh_callback):
         self.controller = controller
+        self.refresh_callback = refresh_callback  # Callback untuk refresh tabel
+        self.window = ctk.CTk()
         self.window.configure(fg_color="#EBEBEB") 
-
-        # Layout
         self.displayPopAdd()
+
 
     def displayPopAdd(self):
         formWindow = ctk.CTkToplevel(self.window)
@@ -132,9 +129,12 @@ class DisplayPopAdd:
             success = self.controller.addBiaya(newBiaya)
             if success:
                 messagebox.showinfo("Success", "Biaya berhasil ditambahkan.")
-                self.clearForm()  # Bersihkan form input (implementasikan metode ini)
+                self.clearForm()
+                self.refresh_callback()  # Panggil fungsi untuk refresh tabel di GUI utama
+                self.window.destroy()  # Tutup popup setelah berhasil menambahkan data
             else:
                 messagebox.showerror("Error", "Gagal menambahkan Biaya.")
+
 
         except ValueError:
             messagebox.showerror("Error", "Harga Satuan dan Kuantitas harus berupa angka.")

@@ -98,45 +98,36 @@ class DisplayPopEdit:
 
 
     def saveData(self, entry1, entry2, entry3, text_box):
-        # Retrieve data from entry widgets and text box
-        nama_barang = entry1.get()
-        harga_satuan = entry2.get()
-        kuantitas = entry3.get()
-        deskripsi = text_box.get("1.0", tk.END)  # Get all text in the text box
-        
-        # # Print values to confirm or store them
-        # print(f"Nama Barang: {nama_barang}")
-        # print(f"Harga Satuan: {harga_satuan}")
-        # print(f"Kuantitas: {kuantitas}")
-        # print(f"Deskripsi: {deskripsi}")
+        # Retrieve data dari input
+        nama_barang = entry1.get().strip()
+        harga_satuan = entry2.get().strip()
+        kuantitas = entry3.get().strip()
+        deskripsi = text_box.get("1.0", tk.END).strip()
 
         try:
-            # Collect data from form fields
-            newBiaya = Biaya (
+            harga_satuan = int(harga_satuan)
+            kuantitas = int(kuantitas)
+            total_biaya = harga_satuan * kuantitas
+
+            editedBiaya = Biaya(
+                idBiaya=self.current_biaya.getidBiaya(),  # ID biaya yang diedit
                 namaBarangBiaya=nama_barang,
+                keteranganBiaya=deskripsi,
                 hargaSatuanBiaya=harga_satuan,
                 quantityBiaya=kuantitas,
-                keteranganBiaya=deskripsi,
-                totalBiaya= 0,
-                idBiaya=1
-                # statusTugas=self.fields["Status Proyek"].get().strip() or "Not Started"
+                totalBiaya=total_biaya
             )
-            # print(f"Tipe controller: {type(self.controller)}")
-            # print(f"Metode controller: {dir(self.controller)}")
-            # Save to database via controller
-            success = self.controller.editBiaya(newBiaya)
-            if success:
-                messagebox.showinfo("Success", "Tugas berhasil ditambahkan.")
-                self.clearForm()
-                self.displayAllTugas()
 
+            success = self.controller.editBiaya(editedBiaya)
+            if success:
+                messagebox.showinfo("Success", "Data berhasil diperbarui.")
+                self.refresh_callback()
+                self.window.destroy()
             else:
-                messagebox.showerror("Error", "Gagal menambahkan Tugas.")
+                messagebox.showerror("Error", "Gagal memperbarui data.")
 
         except ValueError as e:
-            messagebox.showerror("Error", f"Invalid input: {e}")
-
-        # You can add code here to store data to a database or file
+            messagebox.showerror("Error", f"Input tidak valid: {e}")
 
 
 

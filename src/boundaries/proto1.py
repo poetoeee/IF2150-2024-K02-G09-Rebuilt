@@ -44,15 +44,19 @@ class ProjectUI:
         # Frame Kiri - Scrollable Tabel Biaya
         left_frame = ctk.CTkFrame(biaya_frame, corner_radius=10)
         left_frame.place(relx=0.05, rely=0.15, relwidth=0.65, relheight=0.8)
-
         self.create_scrollable_table(left_frame)
 
         # Frame Kanan Atas - Total Biaya
         top_right_frame = ctk.CTkFrame(biaya_frame, corner_radius=10)
         top_right_frame.place(relx=0.72, rely=0.15, relwidth=0.28, relheight=0.4)
 
+        # Hitung Total Biaya
+        total_biaya = self.controller.getTotalBiaya()
         total_label = ctk.CTkLabel(
-            top_right_frame, text="TOTAL\nRp432.000,00", font=("Helvetica", 20, "bold"), text_color="green"
+            top_right_frame,
+            text=f"TOTAL\nRp{total_biaya:,}",  # Format angka dengan pemisah ribuan
+            font=("Helvetica", 20, "bold"),
+            text_color="green"
         )
         total_label.pack(expand=True)
 
@@ -62,6 +66,7 @@ class ProjectUI:
 
         add_btn = ctk.CTkButton(bottom_right_frame, text="➕ Add", command=self.add_biaya)
         add_btn.pack(expand=True, pady=10)
+
 
 
     def create_scrollable_table(self, parent):
@@ -111,31 +116,45 @@ class ProjectUI:
             action_frame.grid(row=row_idx, column=len(headers)-1, padx=5, pady=5)
 
             ctk.CTkButton(action_frame, text="✏", width=30, fg_color="blue", command=lambda b=biaya: self.on_edit(b)).pack(side="left", padx=2)
-            ctk.CTkButton(action_frame, text="🗑", width=30, fg_color="red", command=lambda b=biaya: self.on_delete(b)).pack(side="left", padx=2)
+            ctk.CTkButton(action_frame, text="🗑", command=lambda b_id=biaya.getidBiaya(): self.on_delete(b_id)).pack()
 
         # Update Scroll Region
         scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     def add_biaya(self):
-        """Membuka popup untuk menambahkan data biaya."""
-        popup = DisplayPopAdd(self.controller)  # Panggil DisplayPopAdd dengan controller
-        popup.run()  # Menjalankan popup untuk menambah data
+        """Membuka popup untuk menambahkan data biaya dan refresh tabel setelahnya."""
+        popup = DisplayPopAdd(self.controller, self.refresh_biaya_section)
+        popup.run()
 
-        # Setelah popup ditutup, refresh tabel biaya
+    def refresh_biaya_table(self):
+        """Refresh tabel biaya dengan data terbaru dari database."""
+        self.create_biaya_section()
+
+    def refresh_biaya_section(self):
+        """Refresh tabel biaya dan total biaya."""
         self.create_biaya_section()
 
 
     def on_edit(self, biaya):
-        """Action for Edit Button."""
-        print("Edit button clicked for:", biaya.getnamaBarangBiaya())
-        controller = PengelolaBiaya()
-        editor = DisplayPopEdit(controller)
-        editor.run()
+        """Membuka popup untuk mengedit data biaya."""
+        def refresh_and_close():
+            self.refresh_biaya_section()  # Refresh tabel setelah update
+            editor_window.destroy()
+
+        # Buka popup edit dengan data yang ada
+        editor_window = DisplayPopEdit(
+            self.controller,
+            biaya,  # Kirim data biaya yang akan diedit
+            refresh_and_close  # Callback untuk refresh tabel
+        )
+        editor_window.run()
+
     def on_delete(self, id_biaya):
         """Action for Delete Button."""
         def on_confirm():
             if self.controller.deleteBiaya(id_biaya):
                 messagebox.showinfo("Berhasil", f"Biaya dengan ID {id_biaya} berhasil dihapus.")
+                self.refresh_biaya_section()  # Refresh tabel dan total
             else:
                 messagebox.showerror("Gagal", f"Gagal menghapus biaya dengan ID {id_biaya}.")
             popup.destroy()
@@ -150,7 +169,7 @@ class ProjectUI:
         popup.resizable(False, False)
 
         label = ctk.CTkLabel(
-            popup, text=f"Apakah Anda yakin ingin menghapus biaya ID {id_biaya}?", wraplength=280
+            popup, text=f"Apakah Anda yakin ingin menghapus biaya dengan ID {id_biaya}?", wraplength=280
         )
         label.pack(pady=20)
 

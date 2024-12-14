@@ -76,6 +76,30 @@ class PengelolaBiaya:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
+            
+    def getTotalBiaya(self):
+        """Menghitung total biaya dari semua data di tabel t_biaya."""
+        connection = get_connection()
+        if not connection:
+            print("Database connection failed.")
+            return 0
+
+        try:
+            cursor = connection.cursor()
+            query = "SELECT SUM(totalBiaya) FROM t_biaya"
+            cursor.execute(query)
+            result = cursor.fetchone()
+            return result[0] if result[0] is not None else 0
+
+        except Exception as err:
+            print(f"Error calculating total biaya: {err}")
+            return 0
+
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
+            connection.close()
+
 
     def deleteBiaya(self, idBiayaInput):
             connection = get_connection()
@@ -101,8 +125,14 @@ class PengelolaBiaya:
                 connection.close()
 
     def editBiaya(self, biayaEditted):
+        """Mengedit data biaya yang ada di database."""
+        if biayaEditted.getidBiaya() is None:
+            print("ID Biaya tidak valid.")
+            return False
+
         connection = get_connection()
         if not connection:
+            print("Database connection failed.")
             return False
 
         try:
@@ -116,23 +146,24 @@ class PengelolaBiaya:
                     totalBiaya = ?
                 WHERE idBiaya = ?
             """
-
+            totalBiaya = biayaEditted.gethargaSatuanBiaya() * biayaEditted.getquantityBiaya()
             values = (
                 biayaEditted.getnamaBarangBiaya(),
                 biayaEditted.getketeranganBiaya(),
                 biayaEditted.gethargaSatuanBiaya(),
                 biayaEditted.getquantityBiaya(),
-                biayaEditted.gettotalBiaya(),
+                totalBiaya,
                 biayaEditted.getidBiaya()
             )
+
             cursor.execute(query, values)
             connection.commit()
-            return cursor.rowcount > 0
-        
+            return cursor.rowcount > 0  # True jika ada baris yang diperbarui
+
         except Exception as err:
             print(f"Error updating biaya: {err}")
             return False
-        
+
         finally:
             if 'cursor' in locals():
                 cursor.close()
