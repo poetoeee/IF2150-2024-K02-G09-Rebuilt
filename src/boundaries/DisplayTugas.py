@@ -20,7 +20,7 @@ class DisplayTugas(tk.Frame):
 
     def displayAllTugas(self, idProyek):
         # Header
-        headerFrame = tk.Frame(self, bg="#f5f5f5")
+        headerFrame = tk.Frame(self)
         headerFrame.pack(fill="x", pady=10, padx=10)
         
         logo = ttk.Label(headerFrame, text="ReBuilt", font=("Helvetica", 20, "bold"))
@@ -190,7 +190,7 @@ class DisplayTugas(tk.Frame):
             widget.destroy()
 
         # Create a container for the task view
-        taskDetailFrame = tk.Frame(self.main_frame, bg="#FFFFFF")
+        taskDetailFrame = tk.Frame(self.main_frame)
         taskDetailFrame.pack(fill=tk.BOTH, expand=True)
 
         # Configure grid layout to split into two halves
@@ -199,7 +199,7 @@ class DisplayTugas(tk.Frame):
         taskDetailFrame.columnconfigure(0, weight=1)
 
         # Create the top frame
-        topFrame = tk.Frame(taskDetailFrame, bg="#FFFFFF")
+        topFrame = tk.Frame(taskDetailFrame)
         topFrame.grid(row=0, column=0, sticky="nsew", pady=(0,50))  # Removed padx and pady
 
         # Configure grid for topFrame (1 row, 2 columns)
@@ -208,11 +208,11 @@ class DisplayTugas(tk.Frame):
         topFrame.columnconfigure(1, weight=1)  # Right part
 
         # Left Frame
-        leftFrame = tk.Frame(topFrame, bg="#FFFFFF")
+        leftFrame = tk.Frame(topFrame)
         leftFrame.grid(row=0, column=0, sticky="nsew")
 
         # Right Frame
-        rightFrame = tk.Frame(topFrame, bg="#FFFFFF")
+        rightFrame = tk.Frame(topFrame)
         rightFrame.grid(row=0, column=1, sticky="nsew")
 
         # --- Left Frame Content ---
@@ -240,12 +240,11 @@ class DisplayTugas(tk.Frame):
             text=f"[{tugas.judulTugas}]",
             font=("Helvetica", 18, "bold"),
             fg="#4966FF",
-            bg="#FFFFFF",
         )
         tugasTitle.pack(anchor="w", pady=(40, 5), padx=(50, 5))
 
         # Buttons for delete and edit
-        buttonsFrame = tk.Frame(leftFrame, bg="#FFFFFF")
+        buttonsFrame = tk.Frame(leftFrame)
         buttonsFrame.pack(anchor="w", pady=5)
 
         self.deleteProyekImgButton = tk.PhotoImage(file="img/deleteProyek.png")
@@ -279,7 +278,6 @@ class DisplayTugas(tk.Frame):
             rightFrame,
             text="Rebuilt",
             font=("Helvetica", 20, "bold"),
-            bg="#FFFFFF",
             fg="#000000",
         )
         rebuiltLabel.pack(anchor="e", pady=(10, 5))
@@ -291,19 +289,17 @@ class DisplayTugas(tk.Frame):
             font=("Helvetica", 12),
             wraplength=400,
             justify="left",
-            bg="#FFFFFF",
         )
         descLabel.pack(anchor="e", pady=5, padx=30)
 
         # Total Cost
-        totalCostFrame = tk.Frame(rightFrame, bg="#FFFFFF")
+        totalCostFrame = tk.Frame(rightFrame)
         totalCostFrame.pack(anchor="e", pady=5)
 
         totalCostLabel = tk.Label(
             totalCostFrame,
             text="Total Pengeluaran:",
             font=("Helvetica", 12, "bold"),
-            bg="#FFFFFF",
         )
         totalCostLabel.pack(side=tk.LEFT, padx=5)
 
@@ -312,7 +308,6 @@ class DisplayTugas(tk.Frame):
             text=f"Rp{tugas.biayaTugas:,.2f}",
             font=("Helvetica", 20, "bold"),
             fg="#4966FF",
-            bg="#FFFFFF",
         )
         totalCostValue.pack(side=tk.LEFT, padx=30, pady=(50, 5))
 
@@ -337,7 +332,7 @@ class DisplayTugas(tk.Frame):
 
 
         # Create the bottom frame for DisplayBiaya
-        bottomFrame = tk.Frame(taskDetailFrame, bg="#FFEEDD")
+        bottomFrame = tk.Frame(taskDetailFrame)
         bottomFrame.grid(row=1, column=0, columnspan=2, sticky="nsew")  # Use grid to span across columns
 
         # Configure row and column weights to allow resizing
