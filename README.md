@@ -19,3 +19,16 @@ ReBuilt adalah perangkat lunak yang memungkinkan pengguna untuk merancang proyek
 ## Getting started
 
 Untuk menjalankan program dibutuhkan:
+
+## Daftar Modul
+| No. | Nama                       | NIM         | Modul                                                         | Keterselesaian |
+|-----|----------------------------|-------------|--------------------------------------------------------------|----------------|
+| 1   | Abrar Abhirama W.           | 13523004    | Biaya bagian kelas entity, boundary, dan controller                   | ✅             |
+| 2   | Noumisyifa Nabila N.       | 13523016    | ADT Prioque, dan fitur notifikasi                            | ✅             |
+| 3   | Diyah Susan N.      | 13523054    | ADT Mesinkata, Mesinkarakter, Tree, User, Email, Trie, Fitur Save, Load, Searching | ✅             |
+| 4   | M. Edo Raduputu A.           | 13523058    | ADT Matrix, fitur status kepentingan, dan jadwal kesibukan   | ✅             |
+| 5   | Athian Nugraha M.             | 13523062    |Biaya bagian kelas entity, boundary, dan controller| ✅             |
+
+
+## Basis data
+
