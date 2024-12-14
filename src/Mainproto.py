@@ -1,10 +1,10 @@
-from boundaries.proto1 import ProjectUI
+from boundaries.proto2 import DisplayBiaya
 import customtkinter as ctk
 
 def main():
     # Initialize the controller
     root = ctk.CTk()
-    app = ProjectUI(root)
+    app = DisplayBiaya(root)
     # Initialize and run the UI
     root.mainloop()
 
