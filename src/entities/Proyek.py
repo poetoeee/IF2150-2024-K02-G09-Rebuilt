@@ -43,7 +43,7 @@ class Proyek:
     def get_estimasiBiayaProyek(self):
         return self.estimasiBiayaProyek
 
-    def set_descProyek(self, estimasiBiayaProyek):
+    def set_estimasiBiayaProyek(self, estimasiBiayaProyek):  # Fixed method name
         self.estimasiBiayaProyek = estimasiBiayaProyek
 
     def get_tanggalMulaiProyek(self):
@@ -56,12 +56,10 @@ class Proyek:
         return self.tanggalSelesaiProyek
 
     def set_tanggalSelesaiProyek(self, tanggalSelesaiProyek):
-        self.tanggalSelesaiProyek= tanggalSelesaiProyek
+        self.tanggalSelesaiProyek = tanggalSelesaiProyek
         
     def get_statusProyek(self):
         return self.statusProyek
 
     def set_statusProyek(self, statusProyek):
         self.statusProyek = statusProyek
-
-    

@@ -6,21 +6,22 @@ class PengelolaTugasProyek:
 from database.db_connection import get_connection
 
 class PengelolaTugasProyek:
-    def addTugas(self, tugas):
+    def addTugas(self, tugas, idProyek):
         connection = get_connection()
         if not connection:
             print("Failed to get database connection.")
             return False
-    
+
         try:
             cursor = connection.cursor()
             query = '''
                     INSERT INTO t_tugas (
-                    judulTugas,
-                    descTugas,
-                    biayaTugas,
-                    statusTugas
-                ) VALUES (?, ?, ?, ?)
+                        judulTugas,
+                        descTugas,
+                        biayaTugas,
+                        statusTugas,
+                        idProyekOfTugas
+                    ) VALUES (?, ?, ?, ?, ?)
             '''
 
             values = (
@@ -28,43 +29,62 @@ class PengelolaTugasProyek:
                 tugas.getDescTugas(),
                 tugas.getBiayaTugas(),
                 tugas.getStatusTugas(),
+                idProyek,
             )
             cursor.execute(query, values)
             connection.commit()
             return True
-        
+
         except Exception as err:
             print(f"Error creating tugas: {err}")
             return False
-        
+
         finally:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
 
-    def getAllTugas(self):
+
+    def getAllTugas(self, idProyek):
+        # Validate idProyek input
+        if idProyek is None or not isinstance(idProyek, int):
+            print("Invalid idProyek provided.")
+            return []
+
+        # Establish database connection
         connection = get_connection()
         if not connection:
             print("Database connection failed.")
             return []
-        
+
         try:
             cursor = connection.cursor()
-            query = "SELECT * FROM t_tugas"
-            print("Executing query:", query)  # Debugging
+            query = """
+                SELECT idTugas, judulTugas, descTugas, biayaTugas, statusTugas, idProyekOfTugas
+                FROM t_tugas
+                WHERE idProyekOfTugas = ?
+            """
+            print("Executing query:", query, "with idProyekOfTugas =", idProyek)
 
-            cursor.execute(query)
+            # Execute the query with idProyek as a parameter
+            cursor.execute(query, (idProyek,))
+
+            result = cursor.fetchall()
+            print(f"Number of tugas: {len(result)}")
 
             tugasArray = []
 
-            for (idTugas,
+            # Fetch all results from the query
+            for row in result:
+                (
+                idTugas,
                 judulTugas,
                 descTugas,
                 biayaTugas,
                 statusTugas,
                 idProyekOfTugas
-                ) in cursor:
-
+                ) = row
+                # Create a TugasProyek object for each record
                 tugas = TugasProyek(
                     idTugas=idTugas,
                     judulTugas=judulTugas,
@@ -74,18 +94,20 @@ class PengelolaTugasProyek:
                     idProyekOfTugas=idProyekOfTugas
                 )
                 tugasArray.append(tugas)
-                print(f"Fetched tugas: {idTugas}, {judulTugas}, {descTugas}, {biayaTugas}, {statusTugas}")
+                print(f"Fetched Tugas: {idTugas}, {judulTugas}, {descTugas}, {biayaTugas}, {statusTugas}, {idProyekOfTugas}")
 
             return tugasArray
-        
+
         except Exception as err:
-            print(f"Error fetching all tugas: {err}")
+            print(f"Error fetching tugas by idProyek: {err}")
             return []
-        
+
         finally:
-            if 'cursor' in locals():
+            # Ensure resources are cleaned up properly
+            if "cursor" in locals():
                 cursor.close()
-            connection.close()
+            if connection:
+                connection.close()
 
     def getTugasById(self, idTugasInput):
         connection = get_connection()
@@ -99,9 +121,10 @@ class PengelolaTugasProyek:
                         judulTugas,
                         descTugas,
                         biayaTugas,
-                        statusTugas
+                        statusTugas,
+                        idProyekOfTugas
                     FROM t_tugas
-                    WHERE idTugas = %s
+                    WHERE idTugas = ?
                     """
             
             cursor.execute(query, (idTugasInput,))
@@ -122,7 +145,7 @@ class PengelolaTugasProyek:
                 idProyekOfTugas=idProyekOfTugas
             )
         except Exception as err:
-            print(f"Error fetching projects: {err}")
+            print(f"Error fetching tugas: {err}")
             return None
 
         finally:

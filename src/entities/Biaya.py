@@ -6,7 +6,7 @@ class Biaya:
         self.hargaSatuanBiaya = hargaSatuanBiaya
         self.quantityBiaya = quantityBiaya
         self.totalBiaya = totalBiaya
-        self.idTugasOfBiaya= totalBiaya
+        self.idTugasOfBiaya = idTugasOfBiaya
         
     def getidBiaya(self):
         return self.idBiaya
@@ -47,7 +47,7 @@ class Biaya:
     def getidTugasOfBiaya(self):
         return self.idTugasOfBiaya
     
-    def settotalBiaya(self, totalBiaya):
+    def setidTugasOfBiaya(self, idTugasOfBiaya):
         self.idTugasOfBiaya = idTugasOfBiaya
     
         
