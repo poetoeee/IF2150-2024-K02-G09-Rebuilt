@@ -1,9 +1,9 @@
-from boundaries.proto1 import ProjectUI
+from boundaries.DisplayBiaya import DisplayBiaya
 import customtkinter as ctk
 
 def main():
     root = ctk.CTk()
-    app = ProjectUI(root)
+    app = DisplayBiaya(root)
     root.mainloop()
 
 main()
