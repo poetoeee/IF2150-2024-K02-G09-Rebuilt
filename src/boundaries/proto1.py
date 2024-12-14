@@ -115,18 +115,33 @@ class ProjectUI:
 
             # Action Buttons
             action_frame = ctk.CTkFrame(scrollable_frame, corner_radius=5)
-            action_frame.grid(row=row_idx, column=len(headers)-1, padx=5, pady=5)
+            action_frame.grid(row=row_idx, column=len(headers) - 1, padx=5, pady=5)
 
-            ctk.CTkButton(action_frame, text="✏", width=30, fg_color="blue", command=lambda b=biaya: self.on_edit(b)).pack(side="left", padx=2)
-            ctk.CTkButton(action_frame, text="🗑", command=lambda b_id=biaya.getidBiaya(): self.on_delete(b_id)).pack()
+            # Tombol Edit
+            ctk.CTkButton(
+                action_frame,
+                text="✏",
+                width=30,  # Lebar tombol edit
+                fg_color="blue",
+                command=lambda b=biaya: self.on_edit(b)
+            ).pack(side="left", padx=2)
+
+            # Tombol Hapus
+            ctk.CTkButton(
+                action_frame,
+                text="🗑",
+                width=30,  # Lebar tombol hapus
+                fg_color="red",  # Warna tombol hapus
+                command=lambda b_id=biaya.getidBiaya(): self.on_delete(b_id)
+            ).pack(side="left", padx=2)
+
 
         # Update Scroll Region
         scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     def add_biaya(self):
-        """Membuka popup untuk menambahkan data biaya dan refresh tabel setelahnya."""
-        popup = DisplayPopAdd(self.controller, self.refresh_biaya_section)
-        popup.run()
+        DisplayPopAdd(self.controller, self.refresh_biaya_section)
+
 
     def refresh_biaya_table(self):
         """Refresh tabel biaya dengan data terbaru dari database."""
@@ -138,14 +153,7 @@ class ProjectUI:
 
 
     def on_edit(self, biaya):
-        """Membuka popup untuk mengedit data biaya."""
-        def refresh_and_close():
-            self.refresh_biaya_section()  # Refresh tabel setelah update
-            editor_window.window.destroy()  # Tutup popup
-
-        # Kirim controller, data biaya, dan callback
-        editor_window = DisplayPopEdit(self.controller, biaya, refresh_and_close)
-        editor_window.run()
+        DisplayPopEdit(self.controller, biaya, self.refresh_biaya_section)
 
 
     def on_delete(self, id_biaya):
@@ -158,7 +166,7 @@ class ProjectUI:
                 messagebox.showerror("Gagal", f"Gagal menghapus biaya dengan ID {id_biaya}.")
             popup.destroy()
 
-        def on_cancel():
+        def on_cancel():            
             popup.destroy()
 
         # Popup Konfirmasi
@@ -268,6 +276,92 @@ class DisplayPopAdd:
         except ValueError as e:
             messagebox.showerror("Error", f"Input tidak valid: {e}")
 
+class DisplayPopEdit:
+    def __init__(self, controller, biaya, refresh_callback):
+        self.controller = controller
+        self.current_biaya = biaya  # Menyimpan data biaya yang akan diedit
+        self.refresh_callback = refresh_callback
+
+        # Toplevel window sebagai popup
+        self.window = ctk.CTkToplevel()
+        self.window.title("Form Edit Biaya")
+
+        # Fokus pada popup window
+        self.window.grab_set()
+
+        # Ukuran popup yang lebih kecil
+        window_width = 450
+        window_height = 500
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+        x_position = (screen_width // 2) - (window_width // 2)
+        y_position = (screen_height // 2) - (window_height // 2)
+        self.window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+        # Panggil form
+        self.create_form()
+
+    def create_form(self):
+        padding_x = 20
+        padding_y = 5
+
+        # Nama Barang
+        ctk.CTkLabel(self.window, text="Nama Barang", font=("Poppins", 14), anchor="w").pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.entry1 = ctk.CTkEntry(self.window)
+        self.entry1.insert(0, self.current_biaya.getnamaBarangBiaya())
+        self.entry1.pack(padx=padding_x, pady=padding_y, fill="x")
+
+        # Harga Satuan
+        ctk.CTkLabel(self.window, text="Harga Satuan", font=("Poppins", 14), anchor="w").pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.entry2 = ctk.CTkEntry(self.window)
+        self.entry2.insert(0, self.current_biaya.gethargaSatuanBiaya())
+        self.entry2.pack(padx=padding_x, pady=padding_y, fill="x")
+
+        # Kuantitas
+        ctk.CTkLabel(self.window, text="Kuantitas", font=("Poppins", 14), anchor="w").pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.entry3 = ctk.CTkEntry(self.window)
+        self.entry3.insert(0, self.current_biaya.getquantityBiaya())
+        self.entry3.pack(padx=padding_x, pady=padding_y, fill="x")
+
+        # Deskripsi
+        ctk.CTkLabel(self.window, text="Deskripsi", font=("Poppins", 14), anchor="w").pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.text_box = scrolledtext.ScrolledText(self.window, height=5, wrap="word", font=("Poppins", 12))
+        self.text_box.insert("1.0", self.current_biaya.getketeranganBiaya())
+        self.text_box.pack(padx=padding_x, pady=padding_y, fill="x")
+
+        # Tombol SAVE
+        ctk.CTkButton(self.window, text="SAVE", command=self.save_data).pack(pady=20)
+
+    def save_data(self):
+        try:
+            # Ambil data input
+            nama_barang = self.entry1.get().strip()
+            harga_satuan = int(self.entry2.get().strip())
+            kuantitas = int(self.entry3.get().strip())
+            deskripsi = self.text_box.get("1.0", tk.END).strip()
+
+            # Validasi angka positif
+            if harga_satuan <= 0 or kuantitas <= 0:
+                messagebox.showerror("Error", "Harga Satuan dan Kuantitas harus lebih dari 0.")
+                return
+
+            # Update data Biaya
+            self.current_biaya.setnamaBarangBiaya(nama_barang)
+            self.current_biaya.sethargaSatuanBiaya(harga_satuan)
+            self.current_biaya.setquantityBiaya(kuantitas)
+            self.current_biaya.setketeranganBiaya(deskripsi)
+            self.current_biaya.settotalBiaya(harga_satuan * kuantitas)
+
+            # Simpan perubahan
+            if self.controller.editBiaya(self.current_biaya):
+                messagebox.showinfo("Success", "Data berhasil diperbarui.")
+                self.refresh_callback()
+                self.window.destroy()
+            else:
+                messagebox.showerror("Error", "Gagal memperbarui data.")
+        except ValueError:
+            messagebox.showerror("Error", "Harga Satuan dan Kuantitas harus berupa angka valid.")
+            self.entry2.focus_set()
 
 
 
