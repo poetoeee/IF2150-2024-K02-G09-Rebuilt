@@ -139,15 +139,12 @@ class ProjectUI:
         """Membuka popup untuk mengedit data biaya."""
         def refresh_and_close():
             self.refresh_biaya_section()  # Refresh tabel setelah update
-            editor_window.destroy()
+            editor_window.window.destroy()  # Tutup popup
 
-        # Buka popup edit dengan data yang ada
-        editor_window = DisplayPopEdit(
-            self.controller,
-            biaya,  # Kirim data biaya yang akan diedit
-            refresh_and_close  # Callback untuk refresh tabel
-        )
+        # Kirim controller, data biaya, dan callback
+        editor_window = DisplayPopEdit(self.controller, biaya, refresh_and_close)
         editor_window.run()
+
 
     def on_delete(self, id_biaya):
         """Action for Delete Button."""
