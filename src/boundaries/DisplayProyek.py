@@ -53,6 +53,17 @@ class DisplayProyek(tk.Frame):
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10)
         
         self.setup_ui()
+    
+    def get_greeting_text(self):
+        """Get appropriate greeting based on the local time."""
+        current_hour = datetime.datetime.now().hour
+
+        if 4 <= current_hour < 11:
+            return "Good Morning!"
+        elif 11 <= current_hour < 16:
+            return "Good Afternoon!"
+        else:
+            return "Good Evening!"
         
     def setup_ui(self):
         self.titleFrame = ttk.Frame(self.main_frame)
@@ -81,11 +92,12 @@ class DisplayProyek(tk.Frame):
         self.topFrame.pack(fill=tk.X)
 
         self.top1 = ttk.Frame(self.topFrame)
-        greeting_label = ttk.Label(self.top1, text="Good Morning!", 
+        greeting_text = self.get_greeting_text()
+        greeting_label = ttk.Label(self.top1, text=greeting_text, 
                                  font=("Helvetica", 35, "bold"), 
                                  foreground="#4966FF")
         greetingTextLabel = ttk.Label(self.top1, 
-                                    text="Let's make the best out of your morning together with Rebuilt", 
+                                    text="Let's make the best out of your day together with Rebuilt", 
                                     font=("Helvetica", 15))
         greeting_label.pack(anchor="w")
         greetingTextLabel.pack(anchor="w", pady=20)
@@ -502,6 +514,8 @@ class DisplayProyek(tk.Frame):
         
         def create_grid_with_pie_chart(parent, percentage, description):
             # Create a CTkFrame with rounded corners and border
+            if percentage <= 1:  # Assuming progress might be a float (e.g., 0.0 to 1.0)
+                percentage *= 100
             frame = ctk.CTkFrame(
                 parent, 
                 corner_radius=15, 
@@ -704,11 +718,19 @@ class DisplayProyek(tk.Frame):
 
 
 
+        proyek = self.controller.getProyekById(idProyek)
 
+        if proyek:
+            progress = proyek.get_progressProyek()
+            print(f"Progress for project {idProyek}: {progress}")
+            create_grid_with_pie_chart(
+                gridFrame, 
+                progress, 
+                "Completed"
+            ).grid(row=0, column=0, padx=(0, 5), pady=10)
+        else:
+            print(f"No project found with id {idProyek}")
 
-
-        # Create each grid item
-        create_grid_with_pie_chart(gridFrame, 70, "Completed").grid(row=0, column=0, padx=(0, 5), pady=10)
         create_grid_with_numbers(gridFrame, "11", "11", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
         create_grid_with_expenses(gridFrame, "Rp42.500.000", "Rp100.000.000").grid(row=1, column=0, padx=(0, 5), pady=10)
         create_grid_with_spending_percentage(gridFrame, "42%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)

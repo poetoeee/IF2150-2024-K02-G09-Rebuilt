@@ -1,21 +1,16 @@
-"""Module for managing project (proyek) operations in the system."""
 from entities.Proyek import Proyek
 from database.db_connection import get_connection
 from datetime import datetime
-
+from controllers.PengelolaTugasProyek import PengelolaTugasProyek
 
 class PengelolaProyek:
     """Class to handle CRUD operations for Proyek entities."""
 
+    def __init__(self):
+        self.tugas_manager = PengelolaTugasProyek()  # Initialize the tugas manager
+
     def addProyek(self, proyek):
-        """Add a new project to the database.
-
-        Args:
-            proyek: Proyek object containing project details
-
-        Returns:
-            bool: True if successful, False otherwise
-        """
+        """Add a new project to the database."""
         connection = get_connection()
         if not connection:
             print("Failed to get database connection.")
@@ -57,26 +52,18 @@ class PengelolaProyek:
             connection.close()
 
     def getAllProyek(self, sort_by="progressProyek", asc=True):
-        """Retrieve all projects from database with dynamic sorting.
-
-        Args:
-            sort_by: Column name to sort by ("idProyek" or "progressProyek").
-            asc: Boolean for ascending/descending order.
-
-        Returns:
-            list: List of Proyek objects.
-        """
+        """Retrieve all projects from database with dynamic sorting."""
         connection = get_connection()
         if not connection:
             return []
 
         try:
             cursor = connection.cursor()
-            
+
             # Validate and sanitize the sort_by input
             valid_sort_columns = ["idProyek", "progressProyek"]
             if sort_by not in valid_sort_columns:
-                sort_by = "progressProyek"  # Default to progressProyek if invalid column
+                sort_by = "progressProyek"
 
             sort_order = 'ASC' if asc else 'DESC'
             query = f"SELECT * FROM t_proyek ORDER BY {sort_by} {sort_order}"
@@ -87,11 +74,20 @@ class PengelolaProyek:
                 biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
                 tanggalSelesaiProyek, statusProyek) in cursor.fetchall():
 
+                # Fetch tasks for the project and calculate progress
+                tugas_list = self.tugas_manager.getAllTugas(idProyek)
+                if tugas_list:
+                    total_tugas = len(tugas_list)
+                    done_tugas = sum(1 for tugas in tugas_list if tugas.getStatusTugas().lower() == "done")
+                    calculated_progress = int((done_tugas / total_tugas) * 100)
+                else:
+                    calculated_progress = 0  # No tasks, so no progress
+
                 proyek = Proyek(
                     idProyek=idProyek,
                     judulProyek=judulProyek,
                     descProyek=descProyek,
-                    progressProyek=progressProyek,
+                    progressProyek=calculated_progress,  # Use the calculated progress
                     biayaProyek=biayaProyek,
                     estimasiBiayaProyek=estimasiBiayaProyek,
                     tanggalMulaiProyek=tanggalMulaiProyek,

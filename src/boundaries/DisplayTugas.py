@@ -139,44 +139,164 @@ class DisplayTugas(tk.Frame):
 
         taskFrame.bind("<Enter>", on_enter)
         taskFrame.bind("<Leave>", on_leave)
-            
 
 
     def displayPerTugas(self, idTugas):
+        tugas = self.controller.getTugasById(idTugas)
+
+        if not tugas:
+            print("Tugas not found.")
+            return
+
         # Clear all existing content
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
         # Create a container for the task view
-        taskDetailFrame = tk.Frame(self.main_frame, bg="#FFFFFF")  # Add a background color for the container frame
-        taskDetailFrame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        taskDetailFrame = tk.Frame(self.main_frame, bg="#FFFFFF")
+        taskDetailFrame.pack(fill=tk.BOTH, expand=True)
 
         # Configure grid layout to split into two halves
-        taskDetailFrame.rowconfigure(0, weight=1, uniform="half")  # Top frame
-        taskDetailFrame.rowconfigure(1, weight=1, uniform="half")  # Bottom frame
+        taskDetailFrame.rowconfigure(0, weight=1)  # Top frame
+        taskDetailFrame.rowconfigure(1, weight=5)  # Bottom frame
         taskDetailFrame.columnconfigure(0, weight=1)
 
         # Create the top frame
-        topFrame = tk.Frame(taskDetailFrame, bg="#DFF2FF")  # Add background color for the top frame
-        topFrame.grid(row=0, column=0, sticky="nsew")  # Occupy top half
+        topFrame = tk.Frame(taskDetailFrame, bg="#FFFFFF")
+        topFrame.grid(row=0, column=0, sticky="nsew", pady=(0,50))  # Removed padx and pady
+
+        # Configure grid for topFrame (1 row, 2 columns)
+        topFrame.rowconfigure(0, weight=1)
+        topFrame.columnconfigure(0, weight=1)  # Left part
+        topFrame.columnconfigure(1, weight=1)  # Right part
+
+        # Left Frame
+        leftFrame = tk.Frame(topFrame, bg="#FFFFFF")
+        leftFrame.grid(row=0, column=0, sticky="nsew")
+
+        # Right Frame
+        rightFrame = tk.Frame(topFrame, bg="#FFFFFF")
+        rightFrame.grid(row=0, column=1, sticky="nsew")
+
+        # --- Left Frame Content ---
+        # Back Button
+        backButton = tk.Button(
+            leftFrame,
+            text="← Back to Project Name",
+            bg="#FFFFFF",
+            fg="#000000",
+            font=("Helvetica", 12, "bold"),
+            bd=0,
+            cursor="hand2",
+            command=lambda: self.controller.goBack(),
+        )
+        backButton.pack(anchor="w", pady=5)
+
+        # Task Title
+        tugasTitle = tk.Label(
+            leftFrame,
+            text=f"[{tugas.judulTugas}]",
+            font=("Helvetica", 18, "bold"),
+            fg="#4966FF",
+            bg="#FFFFFF",
+        )
+        tugasTitle.pack(anchor="w", pady=(40, 5), padx=(50, 5))
+
+        # Buttons for delete and edit
+        buttonsFrame = tk.Frame(leftFrame, bg="#FFFFFF")
+        buttonsFrame.pack(anchor="w", pady=5)
+
+        self.deleteProyekImgButton = tk.PhotoImage(file="img/deleteProyek.png")
+        self.editProyekImgButton = tk.PhotoImage(file="img/editProyek.png")
+        deleteButton = tk.Button(
+            buttonsFrame,
+            image=self.deleteProyekImgButton,  # Using the instance variable
+            borderwidth=0,
+            padx=10,
+            pady=5,
+            relief="flat",
+            cursor="hand2",
+            command=lambda: self.popupDeleteTugas(idTugas),
+        )
+        deleteButton.pack(side=tk.LEFT, padx=5)
+
+        editButton = tk.Button(
+            buttonsFrame,
+            image=self.editProyekImgButton,  # Using the instance variable
+            borderwidth=0,
+            padx=10,
+            pady=5,
+            relief="flat",
+            cursor="hand2",
+            command=lambda: self.popupEditTugas(idTugas),
+        )
+        editButton.pack(side=tk.LEFT, padx=5)
+
+        # --- Right Frame Content ---
+        rebuiltLabel = tk.Label(
+            rightFrame,
+            text="Rebuilt",
+            font=("Helvetica", 20, "bold"),
+            bg="#FFFFFF",
+            fg="#000000",
+        )
+        rebuiltLabel.pack(anchor="e", pady=(10, 5))
+
+        # Task Description
+        descLabel = tk.Label(
+            rightFrame,
+            text=tugas.descTugas,
+            font=("Helvetica", 12),
+            wraplength=400,
+            justify="left",
+            bg="#FFFFFF",
+        )
+        descLabel.pack(anchor="e", pady=5, padx=30)
+
+        # Total Cost
+        totalCostFrame = tk.Frame(rightFrame, bg="#FFFFFF")
+        totalCostFrame.pack(anchor="e", pady=5)
+
+        totalCostLabel = tk.Label(
+            totalCostFrame,
+            text="Total Pengeluaran:",
+            font=("Helvetica", 12, "bold"),
+            bg="#FFFFFF",
+        )
+        totalCostLabel.pack(side=tk.LEFT, padx=5)
+
+        totalCostValue = tk.Label(
+            totalCostFrame,
+            text=f"Rp{tugas.biayaTugas:,.2f}",
+            font=("Helvetica", 20, "bold"),
+            fg="#4966FF",
+            bg="#FFFFFF",
+        )
+        totalCostValue.pack(side=tk.LEFT, padx=30, pady=(50, 5))
+
+        # Task Status
+        # Task Status
+        status = tugas.getStatusTugas()
+        imageFile = "img/complete.png" if status.lower() == 'done' else "img/onprogress.png"
+
+        # Ensure the PhotoImage instance is saved as an instance variable to prevent garbage collection
+        self.gambarTugas = tk.PhotoImage(file=imageFile)
+
+        statusButton = tk.Button(
+            rightFrame,
+            image=self.gambarTugas,  # Assign the image
+            borderwidth=0,
+            padx=10,
+            pady=5,
+            relief="flat",
+            cursor="hand2",
+        )
+        statusButton.pack(anchor="e", pady=5, padx=30)
+
 
         # Create the bottom frame
-        bottomFrame = tk.Frame(taskDetailFrame, bg="#FFEEDD")  # Add background color for the bottom frame
-        bottomFrame.grid(row=1, column=0, sticky="nsew")  # Occupy bottom half
-
-        # Add content to the top frame
-        topLabel = tk.Label(topFrame, text="Top Frame Content", font=("Arial", 16, "bold"), bg="#DFF2FF")
-        topLabel.pack(padx=10, pady=10)
-        
-        topLabel2 = tk.Label(topFrame, text="Top Frame Content", font=("Arial", 16, "bold"), bg="#DFF2FF")
-        topLabel2.pack(padx=10, pady=10)
-
-        # Add content to the bottom frame
-        bottomLabel = tk.Label(bottomFrame, text="Bottom Frame Content", font=("Arial", 16, "bold"), bg="#FFEEDD")
-        bottomLabel.pack(padx=10, pady=10)
-
-
-
+        bottomFrame = tk.Frame(taskDetailFrame, bg="#FFEEDD")
+        bottomFrame.grid(row=1, column=0, sticky="nsew")  # Removed padx and pady
 
 
     def open_add_tugas_window(self):
@@ -279,30 +399,35 @@ class DisplayTugas(tk.Frame):
 
 
 
-    def popupEditTugas(self):
-        # Create a new top-level window
-        edit_window = tk.Toplevel()
-        edit_window.transient(self)
-        edit_window.title("Add Tugas")
-        edit_window.geometry("500x600")
-        edit_window.configure(bg="#FFFFFF")  # Set background color
+    def popupEditTugas(self, idTugas):
+        tugas = self.controller.getTugasById(idTugas)
+        if not tugas:
+            messagebox.showerror("Error", "Tugas not found.")
+            return
 
-        
+        # Create a new top-level window
+        editTugasWindow = tk.Toplevel()
+        editTugasWindow.title("Edit Tugas")
+        editTugasWindow.geometry("500x600")
+        editTugasWindow.configure(bg="#FFFFFF")  # Set background color
+
+        # Back Button
         self.leftArrowButtonImg = tk.PhotoImage(file="img/left-arrow.png")
         back_button = tk.Button(
-            edit_window,
-            image=self.leftArrowButtonImg,  # Using the class variable
+            editTugasWindow,
+            image=self.leftArrowButtonImg,
             borderwidth=0,
             bg="#FFFFFF",
             activebackground="#FFFFFF",
-            cursor="hand2"
+            cursor="hand2",
+            command=editTugasWindow.destroy
         )
-        back_button.pack(anchor="w", padx=(20,0), pady=(20, 20))
+        back_button.pack(anchor="w", padx=(20, 0), pady=(20, 20))
 
         # Title label
         title_label = tk.Label(
-            edit_window,
-            text="[Edit Proyek Detail]",
+            editTugasWindow,
+            text="[Edit Tugas]",
             font=("Helvetica", 20, "bold"),
             anchor="w",
             justify="left",
@@ -311,136 +436,62 @@ class DisplayTugas(tk.Frame):
         )
         title_label.pack(fill="x", padx=20, pady=10)
 
-        # Project Title Section
-        project_title_label = ttk.Label(
-            edit_window,
-            text="Judul Tugas",
-            font=("Helvetica", 14, "bold"),
-            foreground="#4966FF",
-            background="#FFFFFF"
-        )
-        project_title_label.pack(anchor="w", padx=20, pady=(5, 5))
-        
-        project_title_container = ctk.CTkFrame(
-            edit_window,
-            corner_radius=10,  # Border radius
-            fg_color="#FFFFFF",
-            border_width=1,
-            border_color="#D3D3D3"  # Light gray border
-        )
-        project_title_container.pack(fill="x", padx=20, pady=(0, 5))
-        
-        project_title_entry = tk.Entry(
-            project_title_container,
-            font=("Helvetica", 12),
-            bg="#FFFFFF",
-            bd=0,  # Remove default border
-            highlightthickness=0,  # Remove focus border
-        )
-        project_title_entry.insert(0, "My proyek no. 1")
-        project_title_entry.pack(fill="x", padx=10, pady=5)
-        
-        biayaLabel = ttk.Label(
-            edit_window,
-            text="Biaya Tugas",
-            font=("Helvetica", 14, "bold"),
-            foreground="#4966FF",
-            background="#FFFFFF"
-        )
-        biayaLabel.pack(anchor="w", padx=20, pady=(5, 5))
-        biaya_container = ctk.CTkFrame(
-            edit_window,
-            corner_radius=10,  # Border radius
-            fg_color="#FFFFFF",
-            border_width=1,
-            border_color="#D3D3D3"  # Light gray border
-        )
-        biaya_container.pack(fill="x", padx=20, pady=(0, 5))
-        
-        biayaEntry = tk.Entry(
-            biaya_container,
-            font=("Helvetica", 12),
-            bg="#FFFFFF",
-            bd=0,  # Remove default border
-            highlightthickness=0,  # Remove focus border
-        )
-        biayaEntry.insert(0, "Biaya")
-        biayaEntry.pack(fill="x", padx=10, pady=5)
-        
-        statusLabel = ttk.Label(
-            edit_window,
-            text="Status Tugas",
-            font=("Helvetica", 14, "bold"),
-            foreground="#4966FF",
-            background="#FFFFFF"
-        )
-        statusLabel.pack(anchor="w", padx=20, pady=(5, 5))
+        fields = {}
+        field_names = ["Judul Tugas", "Deskripsi Tugas", "Status Tugas"]
 
-        status_container = ctk.CTkFrame(
-            edit_window,
-            corner_radius=10,  # Border radius
-            fg_color="#FFFFFF",
-            border_width=1,
-            border_color="#D3D3D3"  # Light gray border
-        )
-        status_container.pack(fill="x", padx=20, pady=(0, 5))
-        
-        
-        statusEntry = tk.Entry(
-            status_container,
-            font=("Helvetica", 12),
-            bg="#FFFFFF",
-            bd=0,  # Remove default border
-            highlightthickness=0,  # Remove focus border
-        )
-        statusEntry.insert(0, "Biaya")
-        statusEntry.pack(fill="x", padx=10, pady=5)
+        # Prepopulate fields with existing data
+        for field_name in field_names:
+            label = ttk.Label(editTugasWindow, text=field_name, font=("Helvetica", 14, "bold"), foreground="#4966FF", background="#FFFFFF")
+            label.pack(anchor="w", padx=20, pady=(10, 5))
 
-        # Description Section
-        description_label = ttk.Label(
-            edit_window,
-            text="Deskripsi Tugas",
-            font=("Helvetica", 14, "bold"),
-            foreground="#4966FF",
-            background="#FFFFFF"
-        )
-        description_label.pack(anchor="w", padx=20, pady=(5, 5))
+            container = ctk.CTkFrame(
+                editTugasWindow,
+                corner_radius=10,
+                fg_color="#FFFFFF",
+                border_width=1,
+                border_color="#D3D3D3"
+            )
+            container.pack(fill="x", padx=20, pady=(0, 20))
 
-        description_container = ctk.CTkFrame(
-            edit_window,
-            corner_radius=10,
-            fg_color="#FFFFFF",
-            border_width=1,
-            border_color="#D3D3D3"
-        )
-        description_container.pack(fill="both", padx=20, pady=(0, 5))
+            entry = tk.Entry(container, font=("Helvetica", 12), bg="#FFFFFF", bd=0, highlightthickness=0)
+            entry.pack(fill="x", padx=10, pady=5)
 
-        description_scrollbar = tk.Scrollbar(description_container)
-        description_scrollbar.pack(side="right", fill="y")
-        
-        description_text = tk.Text(
-            description_container,
-            font=("Helvetica", 12),
-            wrap="word",
-            bg="#FFFFFF",
-            bd=0,  # Remove default border
-            highlightthickness=0,  # Remove focus border
-            yscrollcommand=description_scrollbar.set,
-            height=6,
-        )
-        description_text.insert(
-            "1.0",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-            "Etiam vitae augue vitae ante feugiat placerat. Quisque pretium, "
-            "nulla nec laoreet accumsan, nisl ante rhoncus ante, elementum "
-            "tincidunt augue lacus posuere"
-        )
-        description_text.pack(fill="both", padx=10, pady=5)
+            # Pre-fill fields with existing data
+            if field_name == "Judul Tugas":
+                entry.insert(0, tugas.getJudulTugas())
+            elif field_name == "Deskripsi Tugas":
+                entry.insert(0, tugas.getDescTugas())
+            elif field_name == "Status Tugas":
+                entry.insert(0, tugas.getStatusTugas())
 
-        # Save Button with rounded corners
+            fields[field_name] = entry
+
+        def save_edit_tugas():
+            try:
+                # Collect data from fields
+                edited_tugas = TugasProyek(
+                    idTugas=idTugas,  # Include idTugas for updating
+                    judulTugas=fields["Judul Tugas"].get(),
+                    descTugas=fields["Deskripsi Tugas"].get(),
+                    biayaTugas=tugas.getBiayaTugas(),  # Retain existing biayaTugas
+                    statusTugas=fields["Status Tugas"].get() or "Not Started",
+                    idProyekOfTugas=tugas.getIdProyekOfTugas()  # Retain existing idProyekOfTugas
+                )
+
+                # Call the controller to save the task
+                success = self.controller.editTugas(edited_tugas)
+                if success:
+                    messagebox.showinfo("Success", "Tugas berhasil dirubah!")
+                    editTugasWindow.destroy()
+                    self.refresh_tasks()
+                else:
+                    messagebox.showerror("Error", "Gagal mengedit tugas.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Invalid input: {e}")
+
         save_button = ctk.CTkButton(
-            edit_window,
-            text="save",
+            editTugasWindow,
+            text="Save",
             font=("Helvetica", 16, "bold"),
             fg_color="#4966FF",
             text_color="#FFFFFF",
@@ -448,10 +499,85 @@ class DisplayTugas(tk.Frame):
             corner_radius=5,
             width=100,
             height=40,
+            command=save_edit_tugas
         )
-        save_button.pack(side="bottom", pady=5)
+        save_button.pack(side="bottom", pady=20)
+        editTugasWindow.mainloop()
 
 
+    def popupDeleteTugas(self, idTugas):
+        # Create a new top-level window
+        delete_window = tk.Toplevel()
+        delete_window.title("Delete Confirmation")
+        delete_window.geometry("400x250")
+        delete_window.configure(bg="#FFFFFF")  # Set background color
+
+        self.trashIcon = "img/trash.png"        
+        self.trashImage = tk.PhotoImage(file=self.trashIcon)
+
+        trash_label = tk.Label(
+            delete_window,
+            image=self.trashImage,
+            bg="#FFFFFF"
+        )
+
+        trash_label.pack(pady=(30, 10))
+
+        # Add confirmation text
+        confirmation_label = tk.Label(
+            delete_window,
+            text="Yakin ingin menghapus?",
+            font=("Helvetica", 14, "bold"),
+            bg="#FFFFFF",
+            fg="#000000"
+        )
+        confirmation_label.pack(pady=(10, 20))
+
+        # Button frame
+        button_frame = tk.Frame(delete_window, bg="#FFFFFF")
+        button_frame.pack(pady=(10, 10))
+
+        # "Tidak" (No) button
+        no_button = ctk.CTkButton(
+            button_frame,
+            text="Tidak",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#000000",
+            text_color="#FFFFFF",
+            hover_color="#333333",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=delete_window.destroy  # Close the window on "No"
+        )
+        no_button.pack(side="left", padx=(0, 10))
+        
+        def delete_and_close():
+            success = self.controller.deleteTugas(idTugas)
+            if success:
+                tk.messagebox.showinfo("Success", "Tugas berhasil dihapus!")
+                delete_window.destroy()  # Close the delete confirmation window
+                self.refresh_projects()  # Refresh the project list or view
+                self.show_main_view()
+            else:
+                tk.messagebox.showerror("Error", "Gagal menghapus tugas. Silakan coba lagi.")
+
+        # "Iya" (Yes) button
+        yes_button = ctk.CTkButton(
+            button_frame,
+            text="Iya",
+            font=("Helvetica", 14, "bold"),
+            fg_color="#FF4B4B",
+            text_color="#FFFFFF",
+            hover_color="#CC0000",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=lambda: delete_and_close()
+        )
+        yes_button.pack(side="left", padx=(10, 0))
+
+        delete_window.mainloop()
 
     def addTugas(self, idProyek):
         try:
@@ -494,5 +620,3 @@ class DisplayTugas(tk.Frame):
 
     def run(self):
         self.window.mainloop()
-
-
