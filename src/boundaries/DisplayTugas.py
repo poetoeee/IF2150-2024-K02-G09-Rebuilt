@@ -4,6 +4,7 @@ from tkinter.scrolledtext import ScrolledText
 from PIL import Image, ImageTk
 import customtkinter as ctk
 from entities.TugasProyek import TugasProyek
+from boundaries.DisplayBiaya import DisplayBiaya  # Import DisplayBiaya
 
 
 class DisplayTugas(tk.Frame):
@@ -140,9 +141,45 @@ class DisplayTugas(tk.Frame):
         taskFrame.bind("<Enter>", on_enter)
         taskFrame.bind("<Leave>", on_leave)
 
+    def go_back_to_display_proyek_by_id(self):
+        """
+        Transitions back to DisplayProyekById from DisplayTugas.
+        """
+        # First, safely remove CustomTkinter widgets if any exist
+        for widget in self.main_frame.winfo_children():
+            if 'CTk' in widget.__class__.__name__:  # Check if it's a CustomTkinter widget
+                widget.after_cancel('check_dpi_scaling')  # Cancel any pending scaling checks
+                widget.after_cancel('update')  # Cancel any pending updates
+            widget.destroy()
+        
+        # Get the root window
+        root = self.winfo_toplevel()
+        
+        # Schedule the reload after the current event completes
+        root.after(10, lambda: self._reload_proyek_view())
 
+    def _reload_proyek_view(self):
+        """
+        Helper method to reload the project view safely
+        """
+        # Get the root window
+        root = self.winfo_toplevel()
+        
+        # Find the main application instance
+        main_app = None
+        for widget in root.winfo_children():
+            if hasattr(widget, 'displayProyekById'):
+                main_app = widget
+                break
+        
+        if main_app:
+            main_app.displayProyekById(self.idProyekProyekOfTugas)
+        else:
+            print("Could not find DisplayProyekById instance")
+        
     def displayPerTugas(self, idTugas):
         tugas = self.controller.getTugasById(idTugas)
+        print(idTugas)
 
         if not tugas:
             print("Tugas not found.")
@@ -180,17 +217,22 @@ class DisplayTugas(tk.Frame):
 
         # --- Left Frame Content ---
         # Back Button
-        backButton = tk.Button(
-            leftFrame,
-            text="← Back to Project Name",
-            bg="#FFFFFF",
-            fg="#000000",
-            font=("Helvetica", 12, "bold"),
-            bd=0,
-            cursor="hand2",
-            command=lambda: self.controller.goBack(),
+        # Create and configure the style
+        style = ttk.Style()
+        style.configure(
+            "Back.TButton",
+            font=("Helvetica", 12, "bold")
         )
-        backButton.pack(anchor="w", pady=5)
+
+        # Create the button using the style
+        back_button = ttk.Button(
+            leftFrame,
+            text="← Back",
+            style="Back.TButton",
+            command=lambda: self.go_back_to_display_proyek_by_id()
+        )
+        back_button.pack(anchor="w", pady=5)
+        
 
         # Task Title
         tugasTitle = tk.Label(
@@ -294,9 +336,24 @@ class DisplayTugas(tk.Frame):
         statusButton.pack(anchor="e", pady=5, padx=30)
 
 
-        # Create the bottom frame
+        # Create the bottom frame for DisplayBiaya
         bottomFrame = tk.Frame(taskDetailFrame, bg="#FFEEDD")
-        bottomFrame.grid(row=1, column=0, sticky="nsew")  # Removed padx and pady
+        bottomFrame.grid(row=1, column=0, columnspan=2, sticky="nsew")  # Use grid to span across columns
+
+        # Configure row and column weights to allow resizing
+        taskDetailFrame.rowconfigure(1, weight=1)
+        taskDetailFrame.columnconfigure(0, weight=1)
+
+        # Load DisplayBiaya for the specific tugas
+        self.load_display_biaya(bottomFrame, idTugas)
+    
+    def load_display_biaya(self, parent, idTugas):
+        """
+        Loads the DisplayBiaya frame into the provided parent frame.
+        """
+        # Initialize DisplayBiaya and load it into the parent frame
+        display_biaya = DisplayBiaya(parent, idTugas)
+        display_biaya.create_biaya_section()
 
 
     def open_add_tugas_window(self):

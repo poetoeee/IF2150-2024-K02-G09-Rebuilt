@@ -2,45 +2,36 @@ from entities.Biaya import Biaya
 from database.db_connection import get_connection
 
 class PengelolaBiaya:
-    def addBiaya(self, biaya):
+    def addBiaya(self, biaya, idTugas):
         connection = get_connection()
         if not connection:
-            print("Failed to get database connection.")
             return False
-    
+
         try:
             cursor = connection.cursor()
-            query = '''
-                    INSERT INTO t_biaya (
-                    namaBarangBiaya,
-                    keteranganBiaya,
-                    hargaSatuanBiaya,
-                    quantityBiaya,
-                    totalBiaya, 
-                    idTugasOfBiaya
-                ) VALUES (?, ?, ?, ?, ?, ?)
-            '''
-
+            query = """
+                INSERT INTO t_biaya (namaBarangBiaya, hargaSatuanBiaya, quantityBiaya, totalBiaya, keteranganBiaya, idTugasOfBiaya)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """
             values = (
                 biaya.getnamaBarangBiaya(),
-                biaya.getketeranganBiaya(),
                 biaya.gethargaSatuanBiaya(),
                 biaya.getquantityBiaya(),
                 biaya.gettotalBiaya(),
-                biaya.getidTugasOfBiaya()            
-                )
+                biaya.getketeranganBiaya(),
+                idTugas  # Pastikan ID tugas ditambahkan
+            )
             cursor.execute(query, values)
             connection.commit()
             return True
-        
         except Exception as err:
-            print(f"Error creating biaya: {err}")
+            print(f"Error adding biaya: {err}")
             return False
-        
         finally:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
+
             
     def getAllBiaya(self):
         connection = get_connection()
@@ -79,6 +70,29 @@ class PengelolaBiaya:
                 cursor.close()
             connection.close()
             
+    def getTotalBiayaByTugasId(self, idTugas):
+        """Menghitung total biaya untuk tugas tertentu berdasarkan idTugas."""
+        connection = get_connection()
+        if not connection:
+            print("Database connection failed.")
+            return 0
+
+        try:
+            cursor = connection.cursor()
+            query = "SELECT SUM(totalBiaya) FROM t_biaya WHERE idTugasOfBiaya = ?"
+            cursor.execute(query, (idTugas,))
+            result = cursor.fetchone()
+            return result[0] if result[0] is not None else 0
+
+        except Exception as err:
+            print(f"Error calculating total biaya: {err}")
+            return 0
+
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
+            connection.close()
+    
     def getTotalBiaya(self):
         """Menghitung total biaya dari semua data di tabel t_biaya."""
         connection = get_connection()
