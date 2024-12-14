@@ -4,7 +4,6 @@ from tkinter import scrolledtext
 import customtkinter as ctk
 
 from entities.Biaya import Biaya
-from boundaries.DPBEdit import DisplayPopEdit
 from controllers.PengelolaBiaya import PengelolaBiaya
 
 class ProjectUI:
