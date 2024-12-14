@@ -109,8 +109,8 @@ class DisplayProyek(tk.Frame):
         self.top1.pack(side="left", fill=tk.Y, pady=5)
 
         proyekList = self.controller.getAllProyek()
-        completed_cnt = sum(1 for proyek in proyekList if proyek.get_statusProyek().lower() == "done")
-        ongoing_cnt = sum(1 for proyek in proyekList if proyek.get_statusProyek().lower() == "on progress")
+        completed_cnt = sum(1 for proyek in proyekList if proyek.get_progressProyek() == 100)
+        ongoing_cnt = sum(1 for proyek in proyekList if proyek.get_progressProyek() < 100)
         
         # top4 part
 
@@ -145,34 +145,34 @@ class DisplayProyek(tk.Frame):
         
         # top3 part
 
-        finishedWeekNum = ttk.Label(self.top3, text="11", 
-                                font=("Helvetica", 25, "bold"))
-        finishedWeekNum.pack(pady=(0, 10))
+        # finishedWeekNum = ttk.Label(self.top3, text="11", 
+        #                         font=("Helvetica", 25, "bold"))
+        # finishedWeekNum.pack(pady=(0, 10))
         
-        self.textTop3 = ctk.CTkFrame(
-            self.top3,
-            corner_radius=10,  # Rounded corners
-            fg_color="#4966FF",    # Background color
-            bg_color="transparent"  # Transparent background
-        )
+        # self.textTop3 = ctk.CTkFrame(
+        #     self.top3,
+        #     corner_radius=10,  # Rounded corners
+        #     fg_color="#4966FF",    # Background color
+        #     bg_color="transparent"  # Transparent background
+        # )
         
-        projectsFinishedWeekText = ctk.CTkLabel(
-            self.textTop3,
-            text="Projects Finished",
-            font=("Helvetica", 16, "bold"),
-            text_color="white"
-        )
+        # projectsFinishedWeekText = ctk.CTkLabel(
+        #     self.textTop3,
+        #     text="Projects Finished",
+        #     font=("Helvetica", 16, "bold"),
+        #     text_color="white"
+        # )
         
-        thisWeekText = ctk.CTkLabel(
-            self.textTop3,
-            text="This Week",
-            font=("Helvetica", 16, "bold"),
-            text_color="white"
-        )
+        # thisWeekText = ctk.CTkLabel(
+        #     self.textTop3,
+        #     text="This Week",
+        #     font=("Helvetica", 16, "bold"),
+        #     text_color="white"
+        # )
         
-        projectsFinishedWeekText.pack()
-        thisWeekText.pack()
-        self.textTop3.pack(padx=10, ipadx=10, ipady=1)
+        # projectsFinishedWeekText.pack()
+        # thisWeekText.pack()
+        # self.textTop3.pack(padx=10, ipadx=10, ipady=1)
         
         # top2 part
 
