@@ -345,14 +345,14 @@ class DisplayTugas(tk.Frame):
         taskDetailFrame.columnconfigure(0, weight=1)
 
         # Load DisplayBiaya for the specific tugas
-        self.load_display_biaya(bottomFrame)
+        self.load_display_biaya(bottomFrame, idTugas)
     
-    def load_display_biaya(self, parent):
+    def load_display_biaya(self, parent, idTugas):
         """
         Loads the DisplayBiaya frame into the provided parent frame.
         """
         # Initialize DisplayBiaya and load it into the parent frame
-        display_biaya = DisplayBiaya(parent, idTugas=self.idProyekProyekOfTugas)
+        display_biaya = DisplayBiaya(parent, idTugas)
         display_biaya.create_biaya_section()
 
 
