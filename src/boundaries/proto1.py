@@ -120,7 +120,7 @@ class ProjectUI:
                 text=header, 
                 font=("Helvetica", 14, "bold"), 
                 corner_radius=5, 
-                fg_color="#8B0000",  # Warna merah tua untuk header
+                fg_color="blue",  # Warna merah tua untuk header
                 text_color="#FFFFFF",  # Teks putih
                 width=150  # Atur lebar kolom
             ).grid(row=0, column=col_idx, padx=5, pady=5, sticky="ew")
@@ -214,7 +214,7 @@ class ProjectUI:
         )
         label.pack(pady=20)
 
-        yes_button = ctk.CTkButton(popup, text="Iya", command=on_confirm, fg_color="red")
+        yes_button = ctk.CTkButton(popup, text="Iya", command=on_confirm, fg_color="blue")
         yes_button.pack(side="left", padx=(30, 10), pady=10)
 
         cancel_button = ctk.CTkButton(popup, text="Batal", command=on_cancel)
