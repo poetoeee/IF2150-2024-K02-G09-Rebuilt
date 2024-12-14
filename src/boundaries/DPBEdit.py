@@ -61,36 +61,36 @@ class DisplayPopEdit:
 
 
     def saveData(self, entry1, entry2, entry3, text_box):
-        # Retrieve data dari input
-        nama_barang = entry1.get().strip()
-        harga_satuan = entry2.get().strip()
-        kuantitas = entry3.get().strip()
-        deskripsi = text_box.get("1.0", tk.END).strip()
-
         try:
-            harga_satuan = int(harga_satuan)
-            kuantitas = int(kuantitas)
-            total_biaya = harga_satuan * kuantitas
+            # Ambil data input
+            nama_barang = entry1.get().strip()
+            harga_satuan = int(entry2.get().strip())
+            kuantitas = int(entry3.get().strip())
+            deskripsi = text_box.get("1.0", tk.END).strip()
 
-            editedBiaya = Biaya(
-                idBiaya=self.current_biaya.getidBiaya(),  # ID biaya yang diedit
-                namaBarangBiaya=nama_barang,
-                keteranganBiaya=deskripsi,
-                hargaSatuanBiaya=harga_satuan,
-                quantityBiaya=kuantitas,
-                totalBiaya=total_biaya
-            )
+            # Validasi angka positif
+            if harga_satuan <= 0 or kuantitas <= 0:
+                messagebox.showerror("Error", "Harga Satuan dan Kuantitas harus lebih dari 0.")
+                return
 
-            success = self.controller.editBiaya(editedBiaya)
-            if success:
+            # Update data Biaya
+            self.current_biaya.setnamaBarangBiaya(nama_barang)
+            self.current_biaya.sethargaSatuanBiaya(harga_satuan)
+            self.current_biaya.setquantityBiaya(kuantitas)
+            self.current_biaya.setketeranganBiaya(deskripsi)
+            self.current_biaya.settotalBiaya(harga_satuan * kuantitas)
+
+            # Simpan perubahan
+            if self.controller.editBiaya(self.current_biaya):
                 messagebox.showinfo("Success", "Data berhasil diperbarui.")
                 self.refresh_callback()
                 self.window.destroy()
             else:
                 messagebox.showerror("Error", "Gagal memperbarui data.")
+        except ValueError:
+            messagebox.showerror("Error", "Harga Satuan dan Kuantitas harus berupa angka valid.")
+            entry2.focus_set()
 
-        except ValueError as e:
-            messagebox.showerror("Error", f"Input tidak valid: {e}")
 
 
 

@@ -102,21 +102,19 @@ class DisplayPopAdd:
                 widget.delete("1.0", tk.END)  # Menghapus teks di Textbox
 
 
-
     def saveData(self, entry1, entry2, entry3, text_box):
-        # Retrieve data from entry widgets and text box
         nama_barang = entry1.get().strip()
         harga_satuan = entry2.get().strip()
         kuantitas = entry3.get().strip()
         deskripsi = text_box.get("1.0", tk.END).strip()
 
         try:
-            # Validasi Input Numerik
             harga_satuan = int(harga_satuan)
             kuantitas = int(kuantitas)
-            total_biaya = harga_satuan * kuantitas
+            if harga_satuan <= 0 or kuantitas <= 0:
+                raise ValueError("Harga Satuan dan Kuantitas harus lebih dari 0.")
 
-            # Collect data into Biaya object
+            total_biaya = harga_satuan * kuantitas
             newBiaya = Biaya(
                 namaBarangBiaya=nama_barang,
                 keteranganBiaya=deskripsi,
@@ -125,22 +123,15 @@ class DisplayPopAdd:
                 totalBiaya=total_biaya
             )
 
-            # Save to database via controller
-            success = self.controller.addBiaya(newBiaya)
-            if success:
+            if self.controller.addBiaya(newBiaya):
                 messagebox.showinfo("Success", "Biaya berhasil ditambahkan.")
-                self.clearForm()
-                self.refresh_callback()  # Panggil fungsi untuk refresh tabel di GUI utama
-                self.window.destroy()  # Tutup popup setelah berhasil menambahkan data
+                self.clearForm([entry1, entry2, entry3], text_box)
+                self.refresh_callback()
             else:
                 messagebox.showerror("Error", "Gagal menambahkan Biaya.")
+        except ValueError as e:
+            messagebox.showerror("Error", f"Input tidak valid: {e}")
 
-
-        except ValueError:
-            messagebox.showerror("Error", "Harga Satuan dan Kuantitas harus berupa angka.")
-
-        except Exception as e:
-            messagebox.showerror("Error", f"Terjadi kesalahan: {e}")
 
         # You can add code here to store data to a database or file
 

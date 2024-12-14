@@ -1,9 +1,11 @@
 import tkinter as tk
-import customtkinter as ctk
 from tkinter import messagebox
-from controllers.PengelolaBiaya import PengelolaBiaya
+from tkinter import scrolledtext
+import customtkinter as ctk
+
+from entities.Biaya import Biaya
 from boundaries.DPBEdit import DisplayPopEdit
-from boundaries.DPBAdd import DisplayPopAdd
+from controllers.PengelolaBiaya import PengelolaBiaya
 
 class ProjectUI:
     def __init__(self, root):
@@ -177,6 +179,96 @@ class ProjectUI:
         cancel_button.pack(side="right", padx=(10, 30), pady=10)
 
         popup.grab_set()
+        
+class DisplayPopAdd:
+    def __init__(self, controller, refresh_callback):
+        self.controller = controller
+        self.refresh_callback = refresh_callback
+
+        # Toplevel window sebagai popup
+        self.window = ctk.CTkToplevel()
+        self.window.title("Form Tambah Biaya")
+
+        # Fokus pada popup window
+        self.window.grab_set()
+
+        # Mengatur ukuran popup lebih kecil
+        window_width = 450
+        window_height = 500
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+        x_position = (screen_width // 2) - (window_width // 2)
+        y_position = (screen_height // 2) - (window_height // 2)
+        self.window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+
+        # Panggil form
+        self.create_form()
+
+    def create_form(self):
+        # Padding umum untuk form
+        padding_x = 20
+        padding_y = 5
+
+        # Nama Barang
+        label1 = ctk.CTkLabel(self.window, text="Nama Barang", font=("Poppins", 14), anchor="w")
+        label1.pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.entry1 = ctk.CTkEntry(self.window)
+        self.entry1.pack(padx=padding_x, pady=(0, padding_y), fill="x")
+
+        # Harga Satuan
+        label2 = ctk.CTkLabel(self.window, text="Harga Satuan", font=("Poppins", 14), anchor="w")
+        label2.pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.entry2 = ctk.CTkEntry(self.window)
+        self.entry2.pack(padx=padding_x, pady=(0, padding_y), fill="x")
+
+        # Kuantitas
+        label3 = ctk.CTkLabel(self.window, text="Kuantitas", font=("Poppins", 14), anchor="w")
+        label3.pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.entry3 = ctk.CTkEntry(self.window)
+        self.entry3.pack(padx=padding_x, pady=(0, padding_y), fill="x")
+
+        # Deskripsi
+        label4 = ctk.CTkLabel(self.window, text="Deskripsi", font=("Poppins", 14), anchor="w")
+        label4.pack(padx=padding_x, pady=(padding_y, 0), fill="x")
+        self.text_box = scrolledtext.ScrolledText(self.window, height=5, wrap="word", font=("Poppins", 12))
+        self.text_box.pack(padx=padding_x, pady=(0, padding_y), fill="x")
+
+        # Tombol SAVE
+        save_button = ctk.CTkButton(self.window, text="SAVE", command=self.save_data, width=100)
+        save_button.pack(pady=20)
+
+    def save_data(self):
+        try:
+            # Ambil data input
+            nama_barang = self.entry1.get().strip()
+            harga_satuan = int(self.entry2.get().strip())
+            kuantitas = int(self.entry3.get().strip())
+            deskripsi = self.text_box.get("1.0", tk.END).strip()
+            total_biaya = harga_satuan * kuantitas
+
+            if harga_satuan <= 0 or kuantitas <= 0:
+                raise ValueError("Harga Satuan dan Kuantitas harus lebih dari 0!")
+
+            # Membuat objek Biaya
+            new_biaya = Biaya(
+                namaBarangBiaya=nama_barang,
+                keteranganBiaya=deskripsi,
+                hargaSatuanBiaya=harga_satuan,
+                quantityBiaya=kuantitas,
+                totalBiaya=total_biaya
+            )
+
+            # Simpan ke database via controller
+            if self.controller.addBiaya(new_biaya):
+                messagebox.showinfo("Sukses", "Data Biaya berhasil ditambahkan.")
+                self.refresh_callback()
+                self.window.destroy()  # Tutup popup
+            else:
+                messagebox.showerror("Error", "Gagal menambahkan Biaya.")
+        except ValueError as e:
+            messagebox.showerror("Error", f"Input tidak valid: {e}")
+
+
 
 
 # Main Execution
