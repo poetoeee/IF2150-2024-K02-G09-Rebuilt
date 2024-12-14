@@ -16,7 +16,7 @@ class PengelolaBiaya:
                     keteranganBiaya,
                     hargaSatuanBiaya,
                     quantityBiaya,
-                    totalBiaya
+                    totalBiaya, 
                     idTugasOfBiaya
                 ) VALUES (?, ?, ?, ?, ?, ?)
             '''
