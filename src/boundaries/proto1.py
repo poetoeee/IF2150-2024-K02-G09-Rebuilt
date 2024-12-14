@@ -2,6 +2,8 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import messagebox
 from controllers.PengelolaBiaya import PengelolaBiaya
+from boundaries.DPBEdit import DisplayPopEdit
+from boundaries.DPBAdd import DisplayPopAdd
 
 class ProjectUI:
     def __init__(self, root):
@@ -35,7 +37,7 @@ class ProjectUI:
         biaya_frame = ctk.CTkFrame(self.root, corner_radius=10)
         biaya_frame.place(relx=0.5, rely=0.5, relwidth=0.9, relheight=0.45, anchor="n")
 
-        # Label "Biaya" di atas tabel
+        # Label "Biaya"
         label_biaya = ctk.CTkLabel(biaya_frame, text="Biaya", font=("Helvetica", 18, "bold"))
         label_biaya.place(relx=0.01, rely=0.01)
 
@@ -61,8 +63,9 @@ class ProjectUI:
         add_btn = ctk.CTkButton(bottom_right_frame, text="➕ Add", command=self.add_biaya)
         add_btn.pack(expand=True, pady=10)
 
+
     def create_scrollable_table(self, parent):
-        """Creates a scrollable table within the left frame."""
+        """Creates a scrollable table populated from the database using PengelolaBiaya."""
         canvas = tk.Canvas(parent)
         canvas.pack(side="left", fill="both", expand=True)
 
@@ -80,41 +83,54 @@ class ProjectUI:
                 scrollable_frame, text=header, font=("Helvetica", 14, "bold"), corner_radius=5, fg_color="#d9d9d9"
             ).grid(row=0, column=col_idx, padx=5, pady=5, sticky="ew")
 
-        # Sample Data
-        sample_data = [
-            ("Semen", "Rp9.000", "12", "Rp108.000", "Bahan bangunan.", 1),
-            ("Pasir", "Rp9.000", "12", "Rp108.000", "Material pondasi.", 2),
-            ("Kayu", "Rp15.000", "8", "Rp120.000", "Rangka atap.", 3),
-        ]
+        # Fetch data from PengelolaBiaya
+        pengelola_biaya = PengelolaBiaya()
+        biaya_list = pengelola_biaya.getAllBiaya()
+
+        # Debug: Cetak data ke console
+        print("Data Biaya dari Database:")
+        for biaya in biaya_list:
+            print(biaya.getnamaBarangBiaya(), biaya.gethargaSatuanBiaya(), biaya.getquantityBiaya())
 
         # Populate Data Rows
-        for row_idx, row_data in enumerate(sample_data, start=1):
-            for col_idx, value in enumerate(row_data[:-1]):  # Exclude the ID
+        for row_idx, biaya in enumerate(biaya_list, start=1):
+            row_data = [
+                biaya.getnamaBarangBiaya(),
+                biaya.gethargaSatuanBiaya(),
+                biaya.getquantityBiaya(),
+                biaya.gettotalBiaya(),
+                biaya.getketeranganBiaya(),
+            ]
+            for col_idx, value in enumerate(row_data):
                 ctk.CTkLabel(
-                    scrollable_frame, text=value, corner_radius=5, fg_color="white", text_color="black"
+                    scrollable_frame, text=str(value), corner_radius=5, fg_color="white", text_color="black"
                 ).grid(row=row_idx, column=col_idx, padx=5, pady=5, sticky="ew")
 
             # Action Buttons
             action_frame = ctk.CTkFrame(scrollable_frame, corner_radius=5)
             action_frame.grid(row=row_idx, column=len(headers)-1, padx=5, pady=5)
 
-            id_biaya = row_data[-1]  # ID Biaya
-            ctk.CTkButton(action_frame, text="✏", width=30, fg_color="blue", command=self.on_edit).pack(side="left", padx=2)
-            ctk.CTkButton(
-                action_frame, text="🗑", width=30, fg_color="red", command=lambda id=id_biaya: self.on_delete(id)
-            ).pack(side="left", padx=2)
+            ctk.CTkButton(action_frame, text="✏", width=30, fg_color="blue", command=lambda b=biaya: self.on_edit(b)).pack(side="left", padx=2)
+            ctk.CTkButton(action_frame, text="🗑", width=30, fg_color="red", command=lambda b=biaya: self.on_delete(b)).pack(side="left", padx=2)
 
         # Update Scroll Region
         scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     def add_biaya(self):
-        """Action for Add Biaya."""
-        print("Add Biaya Clicked")
+        """Membuka popup untuk menambahkan data biaya."""
+        popup = DisplayPopAdd(self.controller)  # Panggil DisplayPopAdd dengan controller
+        popup.run()  # Menjalankan popup untuk menambah data
 
-    def on_edit(self):
+        # Setelah popup ditutup, refresh tabel biaya
+        self.create_biaya_section()
+
+
+    def on_edit(self, biaya):
         """Action for Edit Button."""
-        print("Edit button clicked")
-
+        print("Edit button clicked for:", biaya.getnamaBarangBiaya())
+        controller = PengelolaBiaya()
+        editor = DisplayPopEdit(controller)
+        editor.run()
     def on_delete(self, id_biaya):
         """Action for Delete Button."""
         def on_confirm():

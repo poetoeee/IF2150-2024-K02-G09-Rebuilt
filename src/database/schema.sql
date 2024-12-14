@@ -42,12 +42,3 @@ CREATE TABLE IF NOT EXISTS t_inspirasi (
     imageInspirasi TEXT,
     linkInspirasi TEXT
 );
-
--- Menambahkan data awal ke tabel t_biaya
-INSERT INTO t_biaya (namaBarangBiaya, keteranganBiaya, hargaSatuanBiaya, quantityBiaya, totalBiaya, idTugasOfBiaya) 
-VALUES 
-('Kertas A4', 'Pembelian kertas A4 untuk dokumentasi', 50000, 10, 500000, 1),
-('Pulpen', 'Pembelian pulpen untuk kebutuhan kantor', 2000, 50, 100000, 1),
-('Printer', 'Pembelian printer untuk kebutuhan cetak', 1500000, 1, 1500000, 2),
-('Meja Kerja', 'Pembelian meja kerja tambahan', 500000, 2, 1000000, 2),
-('Laptop', 'Pembelian laptop untuk pekerja proyek', 7500000, 1, 7500000, 3);

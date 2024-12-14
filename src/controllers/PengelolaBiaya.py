@@ -41,48 +41,37 @@ class PengelolaBiaya:
             connection.close()
             
     def getAllBiaya(self):
-        # --------------------Pe er ngambil literal semua biaya-----------------
         connection = get_connection()
         if not connection:
             print("Database connection failed.")
             return []
-        
+
         try:
             cursor = connection.cursor()
             query = "SELECT * FROM t_biaya"
-            print("Executing query:", query)  # Debugging
+            print("Executing query:", query)
 
             cursor.execute(query)
-
             biayaArray = []
 
-            for (idBiaya,
-                namaBarangBiaya,
-                keteranganBiaya,
-                hargaSatuanBiaya,
-                quantityBiaya,
-                totalBiaya,
-                idTugasOfBiaya
-                ) in cursor:
-
+            for (idBiaya, namaBarangBiaya, keteranganBiaya, hargaSatuanBiaya, quantityBiaya, totalBiaya, idTugasOfBiaya) in cursor:
                 biaya = Biaya(
-                    biaya.getidBiaya(),
-                    biaya.getnamaBarangBiaya(),
-                    biaya.getketeranganBiaya(),
-                    biaya.gethargaSatuanBiaya(),
-                    biaya.getquantityBiaya(),
-                    biaya.gettotalBiaya(),
-                    biaya.getidTugasOfBiaya()
+                    idBiaya=idBiaya,
+                    namaBarangBiaya=namaBarangBiaya,
+                    keteranganBiaya=keteranganBiaya,
+                    hargaSatuanBiaya=hargaSatuanBiaya,
+                    quantityBiaya=quantityBiaya,
+                    totalBiaya=totalBiaya,
+                    idTugasOfBiaya=idTugasOfBiaya
                 )
                 biayaArray.append(biaya)
-                print(f"Fetched tugas: {namaBarangBiaya}, {keteranganBiaya}, {hargaSatuanBiaya}, {quantityBiaya}, {totalBiaya}, {idTugasOfBiaya}")
-
+            
             return biayaArray
-        
+
         except Exception as err:
             print(f"Error fetching all tugas: {err}")
             return []
-        
+
         finally:
             if 'cursor' in locals():
                 cursor.close()

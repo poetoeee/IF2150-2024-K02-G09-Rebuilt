@@ -83,59 +83,64 @@ class DisplayPopAdd:
         text_box.grid(row=9, column=0, padx=40, pady=10, sticky="ew")  # Sticky east-west agar melebar
 
         # Save Button
-        save_image = Image.open("../img/saveButton.png")
-        save_image = save_image.resize((150, 60))  # Ubah ukuran gambar sesuai keperluan
-        save_photo = ImageTk.PhotoImage(save_image)
+        # save_image = Image.open("img/saveButton.png")
+        # save_image = save_image.resize((150, 60))  # Ubah ukuran gambar sesuai keperluan
+        # save_photo = ImageTk.PhotoImage(save_image)
 
         saveButton = ctk.CTkButton(
             formWindow,
-            text="",  # Hapus teks karena menggunakan gambar
-            image=save_photo,
+            text="SAVE",  # Hapus teks karena menggunakan gambar
             command=lambda: self.saveData(entry1, entry2, entry3, text_box),
-            fg_color="#EBEBEB",
             hover_color="lightgray"
         )
-        saveButton.image = save_photo  # Penting untuk mencegah garbage collection
+        # saveButton.image = save_photo  # Penting untuk mencegah garbage collection
         saveButton.grid(row=10, column=0, pady=20, padx = 30, sticky="e")
+        
+    def clearForm(self):
+        """Mengosongkan semua input di form."""
+        for widget in self.window.winfo_children():
+            if isinstance(widget, ctk.CTkEntry):
+                widget.delete(0, tk.END)  # Menghapus teks di Entry
+            elif isinstance(widget, scrolledtext.ScrolledText):
+                widget.delete("1.0", tk.END)  # Menghapus teks di Textbox
+
 
 
     def saveData(self, entry1, entry2, entry3, text_box):
         # Retrieve data from entry widgets and text box
-        nama_barang = entry1.get()
-        harga_satuan = entry2.get()
-        kuantitas = entry3.get()
-        deskripsi = text_box.get("1.0", tk.END)  # Get all text in the text box
-        
-        # # Print values to confirm or store them
-        # print(f"Nama Barang: {nama_barang}")
-        # print(f"Harga Satuan: {harga_satuan}")
-        # print(f"Kuantitas: {kuantitas}")
-        # print(f"Deskripsi: {deskripsi}")
+        nama_barang = entry1.get().strip()
+        harga_satuan = entry2.get().strip()
+        kuantitas = entry3.get().strip()
+        deskripsi = text_box.get("1.0", tk.END).strip()
 
         try:
-            # Collect data from form fields
-            newBiaya = Biaya (
+            # Validasi Input Numerik
+            harga_satuan = int(harga_satuan)
+            kuantitas = int(kuantitas)
+            total_biaya = harga_satuan * kuantitas
+
+            # Collect data into Biaya object
+            newBiaya = Biaya(
                 namaBarangBiaya=nama_barang,
+                keteranganBiaya=deskripsi,
                 hargaSatuanBiaya=harga_satuan,
                 quantityBiaya=kuantitas,
-                keteranganBiaya=deskripsi,
-                totalBiaya= 0
-                # statusTugas=self.fields["Status Proyek"].get().strip() or "Not Started"
+                totalBiaya=total_biaya
             )
-            # print(f"Tipe controller: {type(self.controller)}")
-            # print(f"Metode controller: {dir(self.controller)}")
+
             # Save to database via controller
             success = self.controller.addBiaya(newBiaya)
             if success:
-                messagebox.showinfo("Success", "Tugas berhasil ditambahkan.")
-                self.clearForm()
-                self.displayAllTugas()
-
+                messagebox.showinfo("Success", "Biaya berhasil ditambahkan.")
+                self.clearForm()  # Bersihkan form input (implementasikan metode ini)
             else:
-                messagebox.showerror("Error", "Gagal menambahkan Tugas.")
+                messagebox.showerror("Error", "Gagal menambahkan Biaya.")
 
-        except ValueError as e:
-            messagebox.showerror("Error", f"Invalid input: {e}")
+        except ValueError:
+            messagebox.showerror("Error", "Harga Satuan dan Kuantitas harus berupa angka.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Terjadi kesalahan: {e}")
 
         # You can add code here to store data to a database or file
 
