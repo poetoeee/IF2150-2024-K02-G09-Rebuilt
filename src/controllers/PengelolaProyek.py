@@ -2,12 +2,15 @@ from entities.Proyek import Proyek
 from database.db_connection import get_connection
 from datetime import datetime
 from controllers.PengelolaTugasProyek import PengelolaTugasProyek
+from controllers.PengelolaBiaya import PengelolaBiaya
+
 
 class PengelolaProyek:
     """Class to handle CRUD operations for Proyek entities."""
 
     def __init__(self):
         self.tugas_manager = PengelolaTugasProyek()  # Initialize the tugas manager
+        self.biaya_manager = PengelolaBiaya()
 
     def addProyek(self, proyek):
         """Add a new project to the database."""
@@ -344,3 +347,25 @@ class PengelolaProyek:
 
         # Return the counts
         return [done_count, on_progress_count]
+    
+    def getSumBiaya(self, idProyek):
+        # Fetch all tugas for the given project
+        tugasList = self.tugas_manager.getAllTugas(idProyek)
+
+        sum = 0
+        for tugas in tugasList:
+            sum += tugas.biayaTugas
+
+        return sum
+    
+    def getRealBiaya(self, idProyek):
+        tugasList = self.tugas_manager.getAllTugas(idProyek)
+
+        sum = 0
+        for tugas in tugasList:
+            sum += self.biaya_manager.getTotalBiayaByTugasId(tugas.idTugas)
+
+        return sum
+
+            
+

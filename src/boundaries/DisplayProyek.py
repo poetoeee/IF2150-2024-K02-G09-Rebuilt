@@ -727,6 +727,10 @@ class DisplayProyek(tk.Frame):
         proyek = self.controller.getProyekById(idProyek)
 
         count = self.controller.getTugasStatusCounts(idProyek)
+
+        biaya = self.controller.getSumBiaya(idProyek)
+
+        realBiaya = self.controller.getRealBiaya(idProyek)
         
         if count[0]!=0 and count[1]!=0:
         
@@ -747,8 +751,8 @@ class DisplayProyek(tk.Frame):
             
 
             create_grid_with_numbers(gridFrame, f"{count[1]}", f"{count[0]}", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
-            create_grid_with_expenses(gridFrame, "Rp42.500.000", "Rp100.000.000").grid(row=1, column=0, padx=(0, 5), pady=10)
-            create_grid_with_spending_percentage(gridFrame, "42%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
+            create_grid_with_expenses(gridFrame, f"{realBiaya}", f"{biaya}").grid(row=1, column=0, padx=(0, 5), pady=10)
+            create_grid_with_spending_percentage(gridFrame, f"{round((biaya / realBiaya) * 100, 2)}%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
 
         else:
             create_grid_with_pie_chart(
