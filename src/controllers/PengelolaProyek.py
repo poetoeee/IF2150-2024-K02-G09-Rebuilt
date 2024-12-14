@@ -1,12 +1,8 @@
 """Module for managing project (proyek) operations in the system."""
 from entities.Proyek import Proyek
 from database.db_connection import get_connection
+from datetime import datetime
 
-class PengelolaProyek:
-    """Class to handle CRUD operations for Proyek entities."""
-
-    from entities.Proyek import Proyek
-from database.db_connection import get_connection
 
 class PengelolaProyek:
     """Class to handle CRUD operations for Proyek entities."""
@@ -35,19 +31,17 @@ class PengelolaProyek:
                     biayaProyek,
                     estimasiBiayaProyek,
                     tanggalMulaiProyek,
-                    tanggalSelesaiProyek,
                     statusProyek
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
             '''
             values = (
                 proyek.get_judulProyek(),
                 proyek.get_descProyek(),
-                proyek.get_progressProyek(),
-                proyek.get_biayaProyek(),
-                proyek.get_estimasiBiayaProyek(),
+                proyek.get_progressProyek() or 0,
+                proyek.get_biayaProyek() or 0,
+                proyek.get_estimasiBiayaProyek() or 0,
                 proyek.get_tanggalMulaiProyek(),
-                proyek.get_tanggalSelesaiProyek(),
-                proyek.get_statusProyek()
+                proyek.get_statusProyek() or "On Progress"
             )
             cursor.execute(query, values)
             connection.commit()
@@ -61,7 +55,6 @@ class PengelolaProyek:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
-
 
     def getAllProyek(self, asc):
         """Retrieve all projects from database.
@@ -85,7 +78,7 @@ class PengelolaProyek:
             proyekArray = []
             for (idProyek, judulProyek, descProyek, progressProyek,
                  biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
-                 tanggalSelesaiProyek, statusProyek) in cursor:
+                 tanggalSelesaiProyek, statusProyek) in cursor.fetchall():
 
                 proyek = Proyek(
                     idProyek=idProyek,
@@ -128,10 +121,10 @@ class PengelolaProyek:
             cursor = connection.cursor()
             query = """
                 SELECT idProyek, judulProyek, descProyek, progressProyek,
-                       biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
-                       tanggalSelesaiProyek, statusProyek
+                    biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
+                    tanggalSelesaiProyek, statusProyek
                 FROM t_proyek
-                WHERE idProyek = %s
+                WHERE idProyek = ?
             """
             cursor.execute(query, (idProyekInput,))
             result = cursor.fetchone()
@@ -140,8 +133,20 @@ class PengelolaProyek:
                 return None
 
             (idProyek, judulProyek, descProyek, progressProyek,
-             biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
-             tanggalSelesaiProyek, statusProyek) = result
+            biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
+            tanggalSelesaiProyek, statusProyek) = result
+
+            # Periksa dan konversi tanggal dengan waktu jika ada
+            def parse_date(date_string):
+                if not date_string:
+                    return None
+                try:
+                    return datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    return datetime.strptime(date_string, "%Y-%m-%d")
+
+            tanggalMulaiProyek = parse_date(tanggalMulaiProyek)
+            tanggalSelesaiProyek = parse_date(tanggalSelesaiProyek)
 
             return Proyek(
                 idProyek=idProyek,
@@ -164,6 +169,7 @@ class PengelolaProyek:
                 cursor.close()
             connection.close()
 
+
     def deleteProyek(self, idProyekInput):
         """Delete a project from the database.
 
@@ -179,7 +185,7 @@ class PengelolaProyek:
 
         try:
             cursor = connection.cursor()
-            query = "DELETE FROM t_proyek WHERE idProyek = %s"
+            query = "DELETE FROM t_proyek WHERE idProyek = ?"
             cursor.execute(query, (idProyekInput,))
             connection.commit()
             return cursor.rowcount > 0
@@ -210,26 +216,37 @@ class PengelolaProyek:
             cursor = connection.cursor()
             query = """
                 UPDATE t_proyek
-                SET judulProyek = %s,
-                    descProyek = %s,
-                    progressProyek = %s,
-                    biayaProyek = %s,
-                    estimasiBiayaProyek = %s,
-                    tanggalMulaiProyek = %s,
-                    tanggalSelesaiProyek = %s,
-                    statusProyek = %s
-                WHERE idProyek = %s
+                SET judulProyek = ?,
+                    descProyek = ?,
+                    progressProyek = ?,
+                    biayaProyek = ?,
+                    estimasiBiayaProyek = ?,
+                    tanggalMulaiProyek = ?,
+                    tanggalSelesaiProyek = ?,
+                    statusProyek = ?
+                WHERE idProyek = ?
             """
+            
+            # Pastikan tanggalMulaiProyek dan tanggalSelesaiProyek diformat dengan benar
+            tanggalMulaiProyek = (
+                proyekEditted.get_tanggalMulaiProyek().strftime('%Y-%m-%d %H:%M:%S')
+                if proyekEditted.get_tanggalMulaiProyek() else None
+            )
+            tanggalSelesaiProyek = (
+                proyekEditted.get_tanggalSelesaiProyek().strftime('%Y-%m-%d %H:%M:%S')
+                if proyekEditted.get_tanggalSelesaiProyek() else None
+            )
+
             values = (
-                proyekEditted.getJudulProyek(),
-                proyekEditted.getDescProyek(),
-                proyekEditted.getProgressProyek(),
-                proyekEditted.getBiayaProyek(),
-                proyekEditted.getEstimasiBiayaProyek(),
-                proyekEditted.getTanggalMulaiProyek(),
-                proyekEditted.getTanggalSelesaiProyek(),
-                proyekEditted.getStatusProyek(),
-                proyekEditted.getIdProyek()
+                proyekEditted.get_judulProyek(),
+                proyekEditted.get_descProyek(),
+                proyekEditted.get_progressProyek(),
+                proyekEditted.get_biayaProyek(),
+                proyekEditted.get_estimasiBiayaProyek(),
+                tanggalMulaiProyek,
+                tanggalSelesaiProyek,
+                proyekEditted.get_statusProyek(),
+                proyekEditted.get_idProyek()
             )
             cursor.execute(query, values)
             connection.commit()

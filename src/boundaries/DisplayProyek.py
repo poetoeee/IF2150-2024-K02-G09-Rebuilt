@@ -2,8 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
 from boundaries.DisplayTugas import DisplayTugas
+from entities.Proyek import Proyek
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import datetime
+from controllers.PengelolaTugasProyek import PengelolaTugasProyek
 
 class ScrollableFrame(ttk.Frame):
     def __init__(self, parent, **kwargs):
@@ -228,7 +231,7 @@ class DisplayProyek(tk.Frame):
         
         addButton = ttk.Button(self.projectsContainerRow1, 
                        image=addButtonImg, 
-                       command=self.onAddButtonClick,
+                       command=self.open_add_proyek_window,
                        style="Transparent.TButton")  # Apply a custom style for transparency
         addButton.image = addButtonImg  # Keep a reference to the image (important to avoid garbage collection)
         addButton.pack(pady=10, padx=20, side="left")  # Packing the button after the title
@@ -242,28 +245,19 @@ class DisplayProyek(tk.Frame):
                         width=20)                  # Width of the dropdown
         dropdown.set("date-asc")
         dropdown.pack(side="right", padx=(350,5), pady=10)
+        dropdown.bind("<<ComboboxSelected>>", self.on_sort_selected)
         
         
         self.scrollable_projects_frame = ScrollableFrame(self.bottomFrame)  # Pack inside projectsContainer
         self.scrollable_projects_frame.pack(fill=tk.BOTH, expand=True)  # Fill remaining space in projectsContainer
 
         # Call the create_project_cards method
-        proyek_list = [
-            {"title": "Project#1", "date": "2024-12-01", "progress": 70, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#2", "date": "2024-12-02", "progress": 50, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#3", "date": "2024-12-03", "progress": 80, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#1", "date": "2024-12-01", "progress": 70, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#2", "date": "2024-12-02", "progress": 50, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#3", "date": "2024-12-03", "progress": 80, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#1", "date": "2024-12-01", "progress": 70, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#2", "date": "2024-12-02", "progress": 50, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"},
-            {"title": "Project#3", "date": "2024-12-03", "progress": 80, "status": "In Progress", "desc": "lorem ipsum dolor sit amet ametnya ganteng yay"}
-        ]
-        
+        # Fetch projects from the database
+        proyek_list = self.controller.getAllProyek(asc=True)  # Ensure this calls your controller
         self.create_project_cards(proyek_list)
     
     def create_project_cards(self, proyek_list):
-        # Use the scrollable frame for project cards
+        """Dynamically creates project cards based on the list of Proyek objects."""
         self.rightArrowButtonImg = tk.PhotoImage(file="img/right-arrow.png")
         parent_frame = self.scrollable_projects_frame.scrollable_frame
 
@@ -306,18 +300,27 @@ class DisplayProyek(tk.Frame):
             inner_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
             # Populate the card with project details
-            judulLabel = ttk.Label(inner_frame, text=proyek["title"], style="JudulLabel.TLabel", foreground="#4966FF")
+            judulLabel = ttk.Label(
+                inner_frame, 
+                text=proyek.get_judulProyek(), 
+                style="JudulLabel.TLabel", 
+                foreground="#4966FF"
+            )
             judulLabel.pack(anchor="w", pady=(0, 5))
 
-            date_label = ttk.Label(inner_frame, text=f"{proyek['date']}", style="TanggalLabel.TLabel")
+            date_label = ttk.Label(
+                inner_frame, 
+                text=f"{proyek.get_tanggalMulaiProyek()}", 
+                style="TanggalLabel.TLabel"
+            )
             date_label.pack(anchor="w", pady=(0, 5))
 
             # Truncate description if it exceeds a maximum length
             MAX_DESC_LENGTH = 50
-            desc_text = proyek["desc"]
+            desc_text = proyek.get_descProyek()
             if len(desc_text) > MAX_DESC_LENGTH:
                 desc_text = desc_text[:MAX_DESC_LENGTH] + "..."
-            
+
             descLabel = ttk.Label(
                 inner_frame,
                 text=desc_text,
@@ -336,7 +339,7 @@ class DisplayProyek(tk.Frame):
             progress_frame.pack(anchor="w", fill="x", side="bottom")
 
             # Create a progress bar using CTkProgressBar
-            progress_value = proyek["progress"]  # Progress value from 0 to 100
+            progress_value = proyek.get_progressProyek()  # Progress value from 0 to 100
             progress_bar = ctk.CTkProgressBar(
                 progress_frame,
                 width=90,  # Further reduced width to make room for the button
@@ -360,7 +363,6 @@ class DisplayProyek(tk.Frame):
             # Add spacer frame to push the button to the right
             spacer_right = ttk.Frame(progress_frame, style="Inner.TFrame")
             spacer_right.pack(side="left", fill="x", expand=True)
-            
 
             right_arrow_button = tk.Button(
                 progress_frame,
@@ -369,12 +371,18 @@ class DisplayProyek(tk.Frame):
                 bg="#FFFFFF",
                 activebackground="#FFFFFF",
                 cursor="hand2",
-                command=self.onRightArrowClick
+                command= lambda idProyek = proyek.get_idProyek(): self.onRightArrowClick(idProyek)
             )
             right_arrow_button.pack(side="right")
+
             
-    def displayProyekById(self):
+    def displayProyekById(self, idProyek):
+        proyek = self.controller.getProyekById(idProyek)
+        if not proyek:
+            tk.messagebox.showerror("Error", "Project not found!")
+            return
         # Hide all existing content
+        
         for widget in self.main_frame.winfo_children():
             widget.pack_forget()
 
@@ -394,7 +402,7 @@ class DisplayProyek(tk.Frame):
 
         # Add a back button
         back_button = ttk.Button(leftProyekFrame, text="← Back",
-                                command=lambda: self.show_main_view())
+                                command=lambda: (self.refresh_projects(), self.show_main_view()))
         back_button.pack(anchor="w", pady=(10, 20))
 
         # Add a title frame and label
@@ -406,17 +414,17 @@ class DisplayProyek(tk.Frame):
         titleRowFrame.columnconfigure(1, weight=0)
 
         # Add the project title
-        proyekJudul = ttk.Label(titleRowFrame, text="[Project Name]",
+        proyekJudul = ttk.Label(titleRowFrame, text=proyek.judulProyek,
                                 font=("Helvetica", 30, "bold"), foreground="#4966FF")
         proyekJudul.grid(row=0, column=0, sticky="w")  # Place in the first column
 
         # Add the project start date beside the title
-        proyekTanggalMulai = ttk.Label(titleRowFrame, text="09-12-2024",
+        proyekTanggalMulai = ttk.Label(titleRowFrame, text=proyek.tanggalMulaiProyek.strftime("%d-%m-%Y") if proyek.tanggalMulaiProyek else "N/A",
                                     font=("Helvetica", 13, "italic"), foreground="red")
         proyekTanggalMulai.grid(row=0, column=1, sticky="w", padx=(0, 15))  # Place in the second column
 
         MAX_DESC_LENGTH = 200
-        desc_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae augue vitae ante feugiat placerat. Quisque pretium, nulla nec laoreet accumsan, nisl ante rhoncus ante, elementum tincidunt augue lacus posuere "
+        desc_text = proyek.descProyek
         if len(desc_text) > MAX_DESC_LENGTH:
             desc_text = desc_text[:MAX_DESC_LENGTH] + "..."
         style.configure(
@@ -449,7 +457,7 @@ class DisplayProyek(tk.Frame):
             image=self.deleteProyekImgButton,  # Using the instance variable
             borderwidth=0,
             cursor="hand2",
-            command=self.displayDeleteProyek  # Remove parentheses to pass the function reference
+            command=lambda idProyek=idProyek: self.displayDeleteProyek(idProyek)  # Properly delay execution
         )
         deleteProyekButton.pack(side=tk.LEFT, padx=(0, 10))  # Add right padding
 
@@ -459,7 +467,7 @@ class DisplayProyek(tk.Frame):
             image=self.editProyekImgButton,  # Using the instance variable
             borderwidth=0,
             cursor="hand2",
-            command=self.open_edit_proyek_window  # Remove parentheses to pass the function reference
+            command=lambda: self.open_edit_proyek_window(idProyek)
         )
         editProyekButton.pack(side=tk.LEFT)
 
@@ -690,10 +698,16 @@ class DisplayProyek(tk.Frame):
         rightProyekFrame = ttk.Frame(proyekDetailFrame)
         rightProyekFrame.grid(row=0, column=1, sticky="nsew")
         # Integrate DisplayTugas into rightProyekFrame
-        displayTugas = DisplayTugas(rightProyekFrame, controller=self.controller)
+        self.tugas_controller = PengelolaTugasProyek()
+        # In displayProyekById method:
+        displayTugas = DisplayTugas(rightProyekFrame, controller=self.tugas_controller, main_frame=proyekDetailFrame, idProyekOfTugas = idProyek)
         displayTugas.pack(fill="both", expand=True)
 
-    def open_edit_proyek_window(self):
+    def open_edit_proyek_window(self, idProyek):
+        proyek = self.controller.getProyekById(idProyek)
+        if not proyek:
+            tk.messagebox.showerror("Error", "Project not found!")
+            return
         # Create a new top-level window
         edit_window = tk.Toplevel()
         edit_window.title("Edit Proyek Detail")
@@ -709,7 +723,7 @@ class DisplayProyek(tk.Frame):
             bg="#FFFFFF",
             activebackground="#FFFFFF",
             cursor="hand2",
-            command=self.onRightArrowClick
+            command=edit_window.destroy
         )
         back_button.pack(anchor="w", padx=(20,0), pady=(20, 20))
 
@@ -751,7 +765,7 @@ class DisplayProyek(tk.Frame):
             bd=0,  # Remove default border
             highlightthickness=0,  # Remove focus border
         )
-        project_title_entry.insert(0, "My proyek no. 1")
+        project_title_entry.insert(0, proyek.get_judulProyek())
         project_title_entry.pack(fill="x", padx=10, pady=5)
 
         # Description Section
@@ -786,14 +800,38 @@ class DisplayProyek(tk.Frame):
             yscrollcommand=description_scrollbar.set,
             height=10,
         )
-        description_text.insert(
-            "1.0",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-            "Etiam vitae augue vitae ante feugiat placerat. Quisque pretium, "
-            "nulla nec laoreet accumsan, nisl ante rhoncus ante, elementum "
-            "tincidunt augue lacus posuere"
-        )
+        description_text.insert("1.0", proyek.get_descProyek())
         description_text.pack(fill="both", padx=10, pady=5)
+        
+        def save_changes():
+            title = project_title_entry.get().strip()
+            description = description_text.get("1.0", "end-1c").strip()
+
+            if not title or not description:
+                tk.messagebox.showerror("Error", "Judul proyek dan deskripsi tidak boleh kosong!")
+                return
+
+            updated_proyek = Proyek(
+                idProyek=idProyek,
+                judulProyek=title,
+                descProyek=description,
+                progressProyek=proyek.get_progressProyek(),
+                biayaProyek=proyek.get_biayaProyek(),
+                estimasiBiayaProyek=proyek.get_estimasiBiayaProyek(),
+                tanggalMulaiProyek=proyek.get_tanggalMulaiProyek(),
+                tanggalSelesaiProyek=proyek.get_tanggalSelesaiProyek(),
+                statusProyek=proyek.get_statusProyek()
+            )
+            success = self.controller.editProyek(updated_proyek)
+            if success:
+                tk.messagebox.showinfo("Success", "Proyek berhasil diperbarui!")
+                edit_window.destroy()
+                # Call refresh_display_proyek_by_id to update the view
+                self.refresh_display_proyek_by_id(idProyek)
+            else:
+                tk.messagebox.showerror("Error", "Gagal memperbarui proyek.")
+
+
 
         # Save Button with rounded corners
         save_button = ctk.CTkButton(
@@ -806,13 +844,109 @@ class DisplayProyek(tk.Frame):
             corner_radius=5,
             width=100,
             height=40,
-            command=self.displaySaveProyek  # Example action
+            command=save_changes
         )
         save_button.pack(side="bottom", pady=20)
 
         edit_window.mainloop()
+    
+    def open_add_proyek_window(self):
+        # Create a new top-level window
+        add_window = tk.Toplevel()
+        add_window.title("Add Proyek")
+        add_window.geometry("500x600")
+        add_window.configure(bg="#FFFFFF")  # Set background color
+
+        # Back Button
+        self.leftArrowButtonImg = tk.PhotoImage(file="img/left-arrow.png")
+        back_button = tk.Button(
+            add_window,
+            image=self.leftArrowButtonImg,  # Using the class variable
+            borderwidth=0,
+            bg="#FFFFFF",
+            activebackground="#FFFFFF",
+            cursor="hand2",
+            command=add_window.destroy 
+        )
+        back_button.pack(anchor="w", padx=(20, 0), pady=(20, 20))
+
+        # Title label
+        title_label = tk.Label(
+            add_window,
+            text="[Add Proyek]",
+            font=("Helvetica", 20, "bold"),
+            anchor="w",
+            justify="left",
+            bg="#FFFFFF",
+            fg="black",
+        )
+        title_label.pack(fill="x", padx=20, pady=10)
+
+        fields = {}
+        field_names = [
+            "Judul proyek", "Deskripsi"
+        ]
         
-    def displayDeleteProyek(self):
+        for field_name in field_names:
+            label = ttk.Label(add_window, text=field_name, font=("Helvetica", 14, "bold"), foreground="#4966FF", background="#FFFFFF")
+            label.pack(anchor="w", padx=20, pady=(10, 5))
+
+            container = ctk.CTkFrame(
+                add_window,
+                corner_radius=10,
+                fg_color="#FFFFFF",
+                border_width=1,
+                border_color="#D3D3D3"
+            )
+            container.pack(fill="x", padx=20, pady=(0, 20))
+
+            entry = tk.Entry(container, font=("Helvetica", 12), bg="#FFFFFF", bd=0, highlightthickness=0)
+            entry.pack(fill="x", padx=10, pady=5)
+            fields[field_name] = entry
+
+        # Save Button
+        def save_addproyek():
+            try:
+                # Collect data from fields
+                new_proyek = Proyek(
+                    judulProyek=fields["Judul proyek"].get_judulProyek(),
+                    descProyek=fields["Deskripsi"].get_descProyek(),
+                    progressProyek=0,
+                    biayaProyek=0,
+                    estimasiBiayaProyek=0,
+                    tanggalMulaiProyek=datetime.date.today().isoformat(),
+                    statusProyek="On Progress"
+                )
+
+                # Call the controller to save the project
+                success = self.controller.addProyek(new_proyek)
+                if success:
+                    tk.messagebox.showinfo("Success", "Proyek berhasil ditambahkan!")
+                    add_window.destroy()
+                    self.refresh_projects()
+                else:
+                    tk.messagebox.showerror("Error", "Gagal menambahkan proyek.")
+            except ValueError as e:
+                tk.messagebox.showerror("Error", f"Invalid input: {e}")
+
+        save_button = ctk.CTkButton(
+            add_window,
+            text="Add",
+            font=("Helvetica", 16, "bold"),
+            fg_color="#4966FF",
+            text_color="#FFFFFF",
+            hover_color="#3B53B5",
+            corner_radius=5,
+            width=100,
+            height=40,
+            command=save_addproyek
+        )
+        save_button.pack(side="bottom", pady=20)
+
+        add_window.mainloop()
+
+        
+    def displayDeleteProyek(self, idProyek):
         # Create a new top-level window
         delete_window = tk.Toplevel()
         delete_window.title("Delete Confirmation")
@@ -858,6 +992,16 @@ class DisplayProyek(tk.Frame):
             command=delete_window.destroy  # Close the window on "No"
         )
         no_button.pack(side="left", padx=(0, 10))
+        
+        def delete_and_close():
+            success = self.controller.deleteProyek(idProyek)
+            if success:
+                tk.messagebox.showinfo("Success", "Proyek berhasil dihapus!")
+                delete_window.destroy()  # Close the delete confirmation window
+                self.refresh_projects()  # Refresh the project list or view
+                self.show_main_view()
+            else:
+                tk.messagebox.showerror("Error", "Gagal menghapus proyek. Silakan coba lagi.")
 
         # "Iya" (Yes) button
         yes_button = ctk.CTkButton(
@@ -870,13 +1014,13 @@ class DisplayProyek(tk.Frame):
             corner_radius=5,
             width=100,
             height=40,
-            command=lambda: print("Proyek dihapus!")  # Replace with the actual delete functionality
+            command=lambda: delete_and_close()
         )
         yes_button.pack(side="left", padx=(10, 0))
 
         delete_window.mainloop()
     
-    def displaySaveProyek(self):
+    def displaySaveProyek(self, edit_window, updated_proyek):
         # Create a new top-level window
         saveWindow = tk.Toplevel()
         saveWindow.title("Save Confirmation")
@@ -923,6 +1067,16 @@ class DisplayProyek(tk.Frame):
         )
         noButton.pack(side="left", padx=(0, 10))
 
+        def save_to_database():
+            success = self.controller.editProyek(updated_proyek)
+            if success:
+                tk.messagebox.showinfo("Success", "Proyek berhasil diperbarui!")
+                saveWindow.destroy()
+                edit_window.destroy()
+                self.refresh_display_proyek_by_id()  # Refresh the projects list
+                
+            else:
+                tk.messagebox.showerror("Error", "Gagal memperbarui proyek. Silakan coba lagi.")
         # "Iya" (Yes) button
         yesButton = ctk.CTkButton(
             buttonFrame,
@@ -934,7 +1088,7 @@ class DisplayProyek(tk.Frame):
             corner_radius=5,
             width=100,
             height=40,
-            command=lambda: print("Proyek dihapus!")  # Replace with the actual delete functionality
+            command=save_to_database
         )
         yesButton.pack(side="left", padx=(10, 0))
 
@@ -945,10 +1099,10 @@ class DisplayProyek(tk.Frame):
     def onAddButtonClick(self):
         print("Add button clicked!")
         
-    def onRightArrowClick(self):
+    def onRightArrowClick(self, idProyek):
         print("Right arrow clicked!")
         # Navigate to the DisplayTugas frame
-        self.displayProyekById()
+        self.displayProyekById(idProyek=idProyek)
         
     def onDeleteButtonClick(self):
         print("delete clicked!")
@@ -963,6 +1117,45 @@ class DisplayProyek(tk.Frame):
             
         # Re-setup the original UI
         self.setup_ui()
+    
+    def refresh_projects(self):
+        """Refresh the project cards by fetching updated data from the controller."""
+        proyek_list = self.controller.getAllProyek(asc=True)  # Ensure this calls your controller
+
+        # Clear existing project cards
+        for widget in self.scrollable_projects_frame.scrollable_frame.winfo_children():
+            widget.destroy()
+
+        # Recreate project cards
+        self.create_project_cards(proyek_list)
+
+        # Reset the scrollable frame's scroll region
+        self.scrollable_projects_frame.canvas.configure(scrollregion=self.scrollable_projects_frame.canvas.bbox("all"))
+    
+    def refresh_display_proyek_by_id(self, idProyek):
+        """Refresh the detailed view of a specific project."""
+        # Fetch the updated project data
+        proyek = self.controller.getProyekById(idProyek)
+        if not proyek:
+            tk.messagebox.showerror("Error", "Project not found!")
+            return
+
+        # Clear the current detailed view
+        for widget in self.main_frame.winfo_children():
+            widget.pack_forget()
+
+        # Re-display the updated project details
+        self.displayProyekById(idProyek)
+
+
+    
+    def on_sort_selected(self, event):
+        sort_option = event.widget.get()
+        asc = "asc" in sort_option
+        proyek_list = self.controller.getAllProyek(asc=asc)
+        self.refresh_projects(proyek_list)
+
+
 
 # Instantiate and run the program
 if __name__ == "__main__":
