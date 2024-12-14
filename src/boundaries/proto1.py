@@ -1,8 +1,7 @@
 import tkinter as tk
 import customtkinter as ctk
+from tkinter import messagebox
 from controllers.PengelolaBiaya import PengelolaBiaya
-# from ..entities.Biaya import Biaya
-from boundaries.DPBEdit import DisplayPopEdit
 
 class ProjectUI:
     def __init__(self, root):
@@ -12,6 +11,9 @@ class ProjectUI:
         self.root = root
         self.root.title("Tugas and Biaya Management")
         self.root.geometry("1024x768")
+
+        # Inisialisasi controller biaya
+        self.controller = PengelolaBiaya()
 
         # Tugas Frame - Top Section
         self.create_tugas_frame()
@@ -80,14 +82,14 @@ class ProjectUI:
 
         # Sample Data
         sample_data = [
-            ("Semen", "Rp9.000", "12", "Rp108.000", "Bahan bangunan."),
-            ("Pasir", "Rp9.000", "12", "Rp108.000", "Material pondasi."),
-            ("Kayu", "Rp15.000", "8", "Rp120.000", "Rangka atap."),
+            ("Semen", "Rp9.000", "12", "Rp108.000", "Bahan bangunan.", 1),
+            ("Pasir", "Rp9.000", "12", "Rp108.000", "Material pondasi.", 2),
+            ("Kayu", "Rp15.000", "8", "Rp120.000", "Rangka atap.", 3),
         ]
 
         # Populate Data Rows
         for row_idx, row_data in enumerate(sample_data, start=1):
-            for col_idx, value in enumerate(row_data):
+            for col_idx, value in enumerate(row_data[:-1]):  # Exclude the ID
                 ctk.CTkLabel(
                     scrollable_frame, text=value, corner_radius=5, fg_color="white", text_color="black"
                 ).grid(row=row_idx, column=col_idx, padx=5, pady=5, sticky="ew")
@@ -96,8 +98,11 @@ class ProjectUI:
             action_frame = ctk.CTkFrame(scrollable_frame, corner_radius=5)
             action_frame.grid(row=row_idx, column=len(headers)-1, padx=5, pady=5)
 
+            id_biaya = row_data[-1]  # ID Biaya
             ctk.CTkButton(action_frame, text="✏", width=30, fg_color="blue", command=self.on_edit).pack(side="left", padx=2)
-            ctk.CTkButton(action_frame, text="🗑", width=30, fg_color="red", command=self.on_delete).pack(side="left", padx=2)
+            ctk.CTkButton(
+                action_frame, text="🗑", width=30, fg_color="red", command=lambda id=id_biaya: self.on_delete(id)
+            ).pack(side="left", padx=2)
 
         # Update Scroll Region
         scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
@@ -109,17 +114,41 @@ class ProjectUI:
     def on_edit(self):
         """Action for Edit Button."""
         print("Edit button clicked")
-        controller = PengelolaBiaya() # Replace with an actual controller instance if available
-        editor = DisplayPopEdit(controller)
-        editor.run()
 
-    def on_delete(self):
+    def on_delete(self, id_biaya):
         """Action for Delete Button."""
-        print("Delete button clicked")
+        def on_confirm():
+            if self.controller.deleteBiaya(id_biaya):
+                messagebox.showinfo("Berhasil", f"Biaya dengan ID {id_biaya} berhasil dihapus.")
+            else:
+                messagebox.showerror("Gagal", f"Gagal menghapus biaya dengan ID {id_biaya}.")
+            popup.destroy()
+
+        def on_cancel():
+            popup.destroy()
+
+        # Popup Konfirmasi
+        popup = ctk.CTkToplevel()
+        popup.title("Konfirmasi Penghapusan")
+        popup.geometry("300x150")
+        popup.resizable(False, False)
+
+        label = ctk.CTkLabel(
+            popup, text=f"Apakah Anda yakin ingin menghapus biaya ID {id_biaya}?", wraplength=280
+        )
+        label.pack(pady=20)
+
+        yes_button = ctk.CTkButton(popup, text="Iya", command=on_confirm, fg_color="red")
+        yes_button.pack(side="left", padx=(30, 10), pady=10)
+
+        cancel_button = ctk.CTkButton(popup, text="Batal", command=on_cancel)
+        cancel_button.pack(side="right", padx=(10, 30), pady=10)
+
+        popup.grab_set()
 
 
 # Main Execution
-if __name__ == "__main__":
-    root = ctk.CTk()
-    app = ProjectUI(root)
-    root.mainloop()
+# if __name__ == "__main__":
+#     root = ctk.CTk()
+#     app = ProjectUI(root)
+#     root.mainloop()
