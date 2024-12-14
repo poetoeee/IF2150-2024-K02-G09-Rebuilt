@@ -14,6 +14,7 @@ class ProjectUI:
         self.root = root
         self.root.title("Tugas and Biaya Management")
         self.root.geometry("1024x768")
+        self.root.configure(bg="#FFFFFF")  # Latar belakang putih
 
         # Inisialisasi controller biaya
         self.controller = PengelolaBiaya()
@@ -26,30 +27,38 @@ class ProjectUI:
 
     def create_tugas_frame(self):
         """Creates the top 'Tugas' section occupying 40% of the window."""
-        tugas_frame = ctk.CTkFrame(self.root, corner_radius=10)
+        tugas_frame = ctk.CTkFrame(self.root, corner_radius=10, fg_color="#FFFFFF")  # Background putih
         tugas_frame.place(relx=0.5, rely=0.05, relwidth=0.9, relheight=0.4, anchor="n")
 
         ctk.CTkLabel(
-            tugas_frame, text="[Tugas Name]", font=("Helvetica", 18, "bold"), text_color="blue"
+            tugas_frame,
+            text="[Tugas Name]",
+            font=("Helvetica", 18, "bold"),
+            text_color="#4B0082"  # Warna ungu gelap
         ).pack(side="left", padx=10, pady=10)
 
     def create_biaya_section(self):
         """Creates the 'Biaya' section divided into 3 frames."""
-        biaya_frame = ctk.CTkFrame(self.root, corner_radius=10)
+        biaya_frame = ctk.CTkFrame(self.root, corner_radius=10, fg_color="#FFFFFF")  # Background putih
         biaya_frame.place(relx=0.5, rely=0.5, relwidth=0.9, relheight=0.45, anchor="n")
 
         # Label "Biaya"
-        label_biaya = ctk.CTkLabel(biaya_frame, text="Biaya", font=("Helvetica", 18, "bold"))
-        label_biaya.place(relx=0.01, rely=0.01)
+        label_biaya = ctk.CTkLabel(
+            biaya_frame,
+            text="Biaya",
+            font=("Helvetica", 18, "bold"),
+            text_color="#8B0000"  # Warna merah tua
+        )
+        label_biaya.place(relx=0.05, rely=0.04)
 
         # Frame Kiri - Scrollable Tabel Biaya
-        left_frame = ctk.CTkFrame(biaya_frame, corner_radius=10)
+        left_frame = ctk.CTkFrame(biaya_frame, corner_radius=10, fg_color="#FFFFFF")  # Background putih
         left_frame.place(relx=0.05, rely=0.15, relwidth=0.65, relheight=0.8)
         self.create_scrollable_table(left_frame)
 
         # Frame Kanan Atas - Total Biaya
-        top_right_frame = ctk.CTkFrame(biaya_frame, corner_radius=10)
-        top_right_frame.place(relx=0.72, rely=0.15, relwidth=0.28, relheight=0.4)
+        top_right_frame = ctk.CTkFrame(biaya_frame, corner_radius=10, fg_color="#FFFFFF")  # Background putih
+        top_right_frame.place(relx=0.71, rely=0.15, relwidth=0.28, relheight=0.4)
 
         # Hitung Total Biaya
         total_biaya = self.controller.getTotalBiaya()
@@ -57,46 +66,68 @@ class ProjectUI:
             top_right_frame,
             text=f"TOTAL\nRp{total_biaya:,}",  # Format angka dengan pemisah ribuan
             font=("Helvetica", 20, "bold"),
-            text_color="green"
+            text_color="#FF4500"  # Warna oranye
         )
         total_label.pack(expand=True)
 
         # Frame Kanan Bawah - Add Button
-        bottom_right_frame = ctk.CTkFrame(biaya_frame, corner_radius=10)
-        bottom_right_frame.place(relx=0.72, rely=0.62, relwidth=0.28, relheight=0.3)
+        bottom_right_frame = ctk.CTkFrame(biaya_frame, corner_radius=10, fg_color="#FFFFFF")  # Background putih
+        bottom_right_frame.place(relx=0.71, rely=0.62, relwidth=0.28, relheight=0.3)
 
-        add_btn = ctk.CTkButton(bottom_right_frame, text="➕ Add", command=self.add_biaya)
+        add_btn = ctk.CTkButton(
+            bottom_right_frame,
+            text="➕ Add",
+            command=self.add_biaya,
+            fg_color="#4682B4",  # Warna biru baja
+            text_color="#FFFFFF"  # Warna teks putih
+        )
         add_btn.pack(expand=True, pady=10)
-
-
 
     def create_scrollable_table(self, parent):
         """Creates a scrollable table populated from the database using PengelolaBiaya."""
-        canvas = tk.Canvas(parent)
+        # Frame utama untuk menampung canvas dan scrollbar horizontal
+        outer_frame = ctk.CTkFrame(parent, fg_color="#FFFFFF")  # Background putih
+        outer_frame.pack(fill="both", expand=True)
+
+        # Canvas untuk scrolling
+        canvas = tk.Canvas(outer_frame, bg="#FFFFFF")  # Latar belakang putih
         canvas.pack(side="left", fill="both", expand=True)
 
-        scrollbar = ctk.CTkScrollbar(parent, command=canvas.yview)
-        scrollbar.pack(side="right", fill="y")
+        # Scrollbars
+        v_scrollbar = ctk.CTkScrollbar(outer_frame, command=canvas.yview, fg_color="#4682B4")  # Scrollbar biru
+        v_scrollbar.pack(side="right", fill="y")
 
-        canvas.configure(yscrollcommand=scrollbar.set)
-        scrollable_frame = ctk.CTkFrame(canvas)
+        h_scrollbar = ctk.CTkScrollbar(parent, command=canvas.xview, orientation="horizontal", fg_color="#4682B4")
+        h_scrollbar.pack(side="bottom", fill="x")  # Posisi horizontal di bawah tabel
+
+        canvas.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+
+        # Frame untuk konten tabel di dalam canvas
+        scrollable_frame = ctk.CTkFrame(canvas, fg_color="#FFFFFF")  # Latar putih untuk tabel
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+        # Binding untuk memastikan scroll bekerja dengan benar
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))  # Update scroll region
+        )
 
         # Table Header
         headers = ["Barang", "Harga", "Qty", "Total", "Keterangan", "Aksi"]
         for col_idx, header in enumerate(headers):
             ctk.CTkLabel(
-                scrollable_frame, text=header, font=("Helvetica", 14, "bold"), corner_radius=5, fg_color="#d9d9d9"
+                scrollable_frame, 
+                text=header, 
+                font=("Helvetica", 14, "bold"), 
+                corner_radius=5, 
+                fg_color="#8B0000",  # Warna merah tua untuk header
+                text_color="#FFFFFF",  # Teks putih
+                width=150  # Atur lebar kolom
             ).grid(row=0, column=col_idx, padx=5, pady=5, sticky="ew")
 
         # Fetch data from PengelolaBiaya
         pengelola_biaya = PengelolaBiaya()
         biaya_list = pengelola_biaya.getAllBiaya()
-
-        # Debug: Cetak data ke console
-        print("Data Biaya dari Database:")
-        for biaya in biaya_list:
-            print(biaya.getnamaBarangBiaya(), biaya.gethargaSatuanBiaya(), biaya.getquantityBiaya())
 
         # Populate Data Rows
         for row_idx, biaya in enumerate(biaya_list, start=1):
@@ -109,31 +140,35 @@ class ProjectUI:
             ]
             for col_idx, value in enumerate(row_data):
                 ctk.CTkLabel(
-                    scrollable_frame, text=str(value), corner_radius=5, fg_color="white", text_color="black"
+                    scrollable_frame, 
+                    text=str(value), 
+                    corner_radius=5, 
+                    fg_color="#FFFFFF",  # Warna putih untuk sel
+                    text_color="#000000",  # Warna teks hitam
+                    width=150
                 ).grid(row=row_idx, column=col_idx, padx=5, pady=5, sticky="ew")
 
             # Action Buttons
-            action_frame = ctk.CTkFrame(scrollable_frame, corner_radius=5)
+            action_frame = ctk.CTkFrame(scrollable_frame, corner_radius=5, fg_color="#FFFFFF")  # Background putih
             action_frame.grid(row=row_idx, column=len(headers) - 1, padx=5, pady=5)
 
-            # Tombol Edit
             ctk.CTkButton(
                 action_frame,
                 text="✏",
-                width=30,  # Lebar tombol edit
-                fg_color="blue",
+                width=30,
+                fg_color="#4B0082",  # Warna ungu gelap
+                text_color="#FFFFFF",
                 command=lambda b=biaya: self.on_edit(b)
             ).pack(side="left", padx=2)
 
-            # Tombol Hapus
             ctk.CTkButton(
                 action_frame,
                 text="🗑",
-                width=30,  # Lebar tombol hapus
-                fg_color="red",  # Warna tombol hapus
+                width=30,
+                fg_color="#FF0000",  # Warna merah
+                text_color="#FFFFFF",
                 command=lambda b_id=biaya.getidBiaya(): self.on_delete(b_id)
             ).pack(side="left", padx=2)
-
 
         # Update Scroll Region
         scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
