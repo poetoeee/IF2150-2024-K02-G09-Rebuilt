@@ -510,12 +510,15 @@ class DisplayProyek(tk.Frame):
         gridFrame = ttk.Frame(leftProyekFrame)
         gridFrame.pack(fill=tk.BOTH, expand=True, pady=(20, 0))
 
+        # count = self.controller.getTugasStatusCounts(idProyek)
+
+        # if count[0]+count[1]==0:  # Pengecekan jika belum ada tugas
         # Configure the grid layout with 2 rows and 2 columns
         gridFrame.columnconfigure(0, weight=1, uniform="grid")
         gridFrame.columnconfigure(1, weight=1, uniform="grid")
         gridFrame.rowconfigure(0, weight=1, uniform="grid")
         gridFrame.rowconfigure(1, weight=1, uniform="grid")
-        
+    
         def create_grid_with_pie_chart(parent, percentage, description):
             # Create a CTkFrame with rounded corners and border
             if percentage <= 1:  # Assuming progress might be a float (e.g., 0.0 to 1.0)
@@ -565,7 +568,7 @@ class DisplayProyek(tk.Frame):
 
 
         def create_grid_with_numbers(parent, number1, number2, label1, label2):
-           # Create a CTkFrame with rounded corners and border
+        # Create a CTkFrame with rounded corners and border
             frame = ctk.CTkFrame(
                 parent, 
                 corner_radius=15, 
@@ -721,30 +724,41 @@ class DisplayProyek(tk.Frame):
             return card
 
 
-
         proyek = self.controller.getProyekById(idProyek)
 
         count = self.controller.getTugasStatusCounts(idProyek)
         
-        print(count[0], count[1])
+        if count[0]!=0 and count[1]!=0:
+        
+            print(count[0], count[1])
 
-        if proyek:
-            progress = count[0]/(count[1] + count[0])
-            progress = round(progress, 2)  # Round to 2 decimal places
-            print(f"Progress for project {idProyek}: {progress}")
+            if proyek:
+                progress = count[0]/(count[1] + count[0])
+                progress = round(progress, 2)  # Round to 2 decimal places
+                print(f"Progress for project {idProyek}: {progress}")
+                create_grid_with_pie_chart(
+                    gridFrame, 
+                    progress, 
+                    "Completed"
+                ).grid(row=0, column=0, padx=(0, 5), pady=10)
+            else:
+                print(f"No project found with id {idProyek}")
+
+            
+
+            create_grid_with_numbers(gridFrame, f"{count[1]}", f"{count[0]}", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
+            create_grid_with_expenses(gridFrame, "Rp42.500.000", "Rp100.000.000").grid(row=1, column=0, padx=(0, 5), pady=10)
+            create_grid_with_spending_percentage(gridFrame, "42%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
+
+        else:
             create_grid_with_pie_chart(
                 gridFrame, 
-                progress, 
+                0, 
                 "Completed"
             ).grid(row=0, column=0, padx=(0, 5), pady=10)
-        else:
-            print(f"No project found with id {idProyek}")
-
-        
-
-        create_grid_with_numbers(gridFrame, f"{count[1]}", f"{count[0]}", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
-        create_grid_with_expenses(gridFrame, "Rp42.500.000", "Rp100.000.000").grid(row=1, column=0, padx=(0, 5), pady=10)
-        create_grid_with_spending_percentage(gridFrame, "42%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
+            create_grid_with_numbers(gridFrame, "0", "0", "On Progress Tugas", "Completed Tugas").grid(row=0, column=1, padx=(5, 0), pady=10)
+            create_grid_with_expenses(gridFrame, "Rp0", "Rp0").grid(row=1, column=0, padx=(0, 5), pady=10)
+            create_grid_with_spending_percentage(gridFrame, "0%", "Money spent out of your estimation").grid(row=1, column=1, padx=(5, 0), pady=10)
 
         # Add a placeholder for the right frame
         rightProyekFrame = ttk.Frame(proyekDetailFrame)

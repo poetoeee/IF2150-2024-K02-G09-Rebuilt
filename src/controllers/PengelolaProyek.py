@@ -326,9 +326,9 @@ class PengelolaProyek:
         # Fetch all tugas for the given project
         tugasList = self.tugas_manager.getAllTugas(idProyek)
 
-        if not tugasList:
-            print("No tugas found for the given project.")
-            return {"done": 0, "on_progress": 0}
+        # if not tugasList:
+        #     print("No tugas found for the given project.")
+        #     return {"done": 0, "on_progress": 0}
 
         # Initialize counters
         done_count = 0
