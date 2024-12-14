@@ -51,22 +51,71 @@ class PengelolaProyek:
                 cursor.close()
             connection.close()
 
+    # def getAllProyek(self, sort_by="progressProyek", asc=True):
+    #     """Retrieve all projects from database with dynamic sorting."""
+    #     connection = get_connection()
+    #     if not connection:
+    #         return []
+
+    #     try:
+    #         cursor = connection.cursor()
+
+    #         # Validate and sanitize the sort_by input
+    #         valid_sort_columns = ["idProyek", "progressProyek"]
+    #         if sort_by not in valid_sort_columns:
+    #             sort_by = "progressProyek"
+
+    #         sort_order = 'ASC' if asc else 'DESC'
+    #         query = f"SELECT * FROM t_proyek ORDER BY {sort_by} {sort_order}"
+    #         cursor.execute(query)
+
+    #         proyekArray = []
+    #         for (idProyek, judulProyek, descProyek, progressProyek,
+    #             biayaProyek, estimasiBiayaProyek, tanggalMulaiProyek,
+    #             tanggalSelesaiProyek, statusProyek) in cursor.fetchall():
+
+    #             # Fetch tasks for the project and calculate progress
+    #             tugas_list = self.tugas_manager.getAllTugas(idProyek)
+    #             if tugas_list:
+    #                 total_tugas = len(tugas_list)
+    #                 done_tugas = sum(1 for tugas in tugas_list if tugas.getStatusTugas().lower() == "done")
+    #                 calculated_progress = int((done_tugas / total_tugas) * 100)
+    #             else:
+    #                 calculated_progress = 0  # No tasks, so no progress
+
+    #             proyek = Proyek(
+    #                 idProyek=idProyek,
+    #                 judulProyek=judulProyek,
+    #                 descProyek=descProyek,
+    #                 progressProyek=calculated_progress,  # Use the calculated progress
+    #                 biayaProyek=biayaProyek,
+    #                 estimasiBiayaProyek=estimasiBiayaProyek,
+    #                 tanggalMulaiProyek=tanggalMulaiProyek,
+    #                 tanggalSelesaiProyek=tanggalSelesaiProyek,
+    #                 statusProyek=statusProyek
+    #             )
+    #             proyekArray.append(proyek)
+
+    #         return proyekArray
+
+    #     except Exception as err:
+    #         print(f"Error fetching all proyek: {err}")
+    #         return []
+
+    #     finally:
+    #         if 'cursor' in locals():
+    #             cursor.close()
+    #         connection.close()
+
     def getAllProyek(self, sort_by="progressProyek", asc=True):
-        """Retrieve all projects from database with dynamic sorting."""
+        """Retrieve all projects and sort in Python."""
         connection = get_connection()
         if not connection:
             return []
 
         try:
             cursor = connection.cursor()
-
-            # Validate and sanitize the sort_by input
-            valid_sort_columns = ["idProyek", "progressProyek"]
-            if sort_by not in valid_sort_columns:
-                sort_by = "progressProyek"
-
-            sort_order = 'ASC' if asc else 'DESC'
-            query = f"SELECT * FROM t_proyek ORDER BY {sort_by} {sort_order}"
+            query = "SELECT * FROM t_proyek"
             cursor.execute(query)
 
             proyekArray = []
@@ -96,6 +145,13 @@ class PengelolaProyek:
                 )
                 proyekArray.append(proyek)
 
+            # Perform sorting in Python
+            reverse = not asc
+            if sort_by == "progressProyek":
+                proyekArray.sort(key=lambda x: x.progressProyek, reverse=reverse)
+            elif sort_by == "idProyek":
+                proyekArray.sort(key=lambda x: x.idProyek, reverse=reverse)
+
             return proyekArray
 
         except Exception as err:
@@ -106,6 +162,7 @@ class PengelolaProyek:
             if 'cursor' in locals():
                 cursor.close()
             connection.close()
+
 
 
     def getProyekById(self, idProyekInput):
