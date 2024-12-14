@@ -5,6 +5,5 @@ from MainApplication import MainApp  # Ensure the capitalization matches the fil
 def main():
     app = MainApp()
     app.mainloop()
-
 if __name__ == "__main__":
     main()

@@ -79,6 +79,29 @@ class PengelolaBiaya:
                 cursor.close()
             connection.close()
             
+    def getTotalBiayaByTugasId(self, idTugas):
+        """Menghitung total biaya untuk tugas tertentu berdasarkan idTugas."""
+        connection = get_connection()
+        if not connection:
+            print("Database connection failed.")
+            return 0
+
+        try:
+            cursor = connection.cursor()
+            query = "SELECT SUM(totalBiaya) FROM t_biaya WHERE idTugasOfBiaya = ?"
+            cursor.execute(query, (idTugas,))
+            result = cursor.fetchone()
+            return result[0] if result[0] is not None else 0
+
+        except Exception as err:
+            print(f"Error calculating total biaya: {err}")
+            return 0
+
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
+            connection.close()
+    
     def getTotalBiaya(self):
         """Menghitung total biaya dari semua data di tabel t_biaya."""
         connection = get_connection()
