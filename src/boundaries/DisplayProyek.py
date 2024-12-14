@@ -107,10 +107,14 @@ class DisplayProyek(tk.Frame):
         self.top4 = ttk.Frame(self.topFrame)
 
         self.top1.pack(side="left", fill=tk.Y, pady=5)
+
+        proyekList = self.controller.getAllProyek()
+        completed_cnt = sum(1 for proyek in proyekList if proyek.get_statusProyek().lower() == "done")
+        ongoing_cnt = sum(1 for proyek in proyekList if proyek.get_statusProyek().lower() == "on progress")
         
         # top4 part
 
-        onProgressNum = ttk.Label(self.top4, text="11", 
+        onProgressNum = ttk.Label(self.top4, text=str(ongoing_cnt), 
                                 font=("Helvetica", 25, "bold"))
         onProgressNum.pack(pady=(0, 10))
         
@@ -172,7 +176,7 @@ class DisplayProyek(tk.Frame):
         
         # top2 part
 
-        finishedTotalNum = ttk.Label(self.top2, text="11", 
+        finishedTotalNum = ttk.Label(self.top2, text=str(completed_cnt), 
                                 font=("Helvetica", 25, "bold"))
         finishedTotalNum.pack(pady=(0, 10))
         
