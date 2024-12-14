@@ -194,154 +194,48 @@ class DisplayTugas(tk.Frame):
 
         # Configure grid layout to split into two halves
         taskDetailFrame.rowconfigure(0, weight=1)  # Top frame
-        taskDetailFrame.rowconfigure(1, weight=5)  # Bottom frame
+        taskDetailFrame.rowconfigure(1, weight=1)  # Bottom frame
         taskDetailFrame.columnconfigure(0, weight=1)
 
         # Create the top frame
         topFrame = tk.Frame(taskDetailFrame, bg="#FFFFFF")
-        topFrame.grid(row=0, column=0, sticky="nsew", pady=(0,50))  # Removed padx and pady
+        topFrame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
-        # Configure grid for topFrame (1 row, 2 columns)
-        topFrame.rowconfigure(0, weight=1)
-        topFrame.columnconfigure(0, weight=1)  # Left part
-        topFrame.columnconfigure(1, weight=1)  # Right part
-
-        # Left Frame
-        leftFrame = tk.Frame(topFrame, bg="#FFFFFF")
-        leftFrame.grid(row=0, column=0, sticky="nsew")
+        left_frame = tk.Frame(topFrame, bg="white")
+        left_frame.place(x=20, y=20, width=360, height=260)
 
         # Right Frame
-        rightFrame = tk.Frame(topFrame, bg="#FFFFFF")
-        rightFrame.grid(row=0, column=1, sticky="nsew")
+        right_frame = tk.Frame(topFrame, bg="white")
+        right_frame.place(x=400, y=20, width=360, height=260)
 
-        # --- Left Frame Content ---
-        # Back Button
-        # Create and configure the style
-        style = ttk.Style()
-        style.configure(
-            "Back.TButton",
-            font=("Helvetica", 12, "bold")
-        )
+        # Left Frame Content
+        back_btn = tk.Label(left_frame, text="\u2B05 Back to Project Name", fg="black", bg="white", font=("Arial", 10, "bold"))
+        back_btn.pack(anchor="w", pady=(0, 10))
 
-        # Create the button using the style
-        back_button = ttk.Button(
-            leftFrame,
-            text="← Back",
-            style="Back.TButton",
-            command=lambda: self.go_back_to_display_proyek_by_id()
-        )
-        back_button.pack(anchor="w", pady=5)
-        
+        task_name_label = tk.Label(left_frame, text="[Tugas Name]", fg="blue", bg="white", font=("Arial", 30, "bold"))
+        task_name_label.pack(anchor="w", pady=(0, 10))
 
-        # Task Title
-        tugasTitle = tk.Label(
-            leftFrame,
-            text=f"[{tugas.judulTugas}]",
-            font=("Helvetica", 18, "bold"),
-            fg="#4966FF",
-            bg="#FFFFFF",
-        )
-        tugasTitle.pack(anchor="w", pady=(40, 5), padx=(50, 5))
+        button_frame = tk.Frame(left_frame, bg="white")
+        button_frame.pack(anchor="w", pady=(0, 10))
 
-        # Buttons for delete and edit
-        buttonsFrame = tk.Frame(leftFrame, bg="#FFFFFF")
-        buttonsFrame.pack(anchor="w", pady=5)
+        delete_btn = tk.Button(button_frame, text="delete", bg="red", fg="white", font=("Arial", 10, "bold"), padx=10, pady=5)
+        delete_btn.pack(side="left", padx=(0, 5))
 
-        self.deleteProyekImgButton = tk.PhotoImage(file="img/deleteProyek.png")
-        self.editProyekImgButton = tk.PhotoImage(file="img/editProyek.png")
-        deleteButton = tk.Button(
-            buttonsFrame,
-            image=self.deleteProyekImgButton,  # Using the instance variable
-            borderwidth=0,
-            padx=10,
-            pady=5,
-            relief="flat",
-            cursor="hand2",
-            command=lambda: self.popupDeleteTugas(idTugas),
-        )
-        deleteButton.pack(side=tk.LEFT, padx=5)
+        edit_btn = tk.Button(button_frame, text="edit", bg="blue", fg="white", font=("Arial", 10, "bold"), padx=10, pady=5)
+        edit_btn.pack(side="left")
 
-        editButton = tk.Button(
-            buttonsFrame,
-            image=self.editProyekImgButton,  # Using the instance variable
-            borderwidth=0,
-            padx=10,
-            pady=5,
-            relief="flat",
-            cursor="hand2",
-            command=lambda: self.popupEditTugas(idTugas),
-        )
-        editButton.pack(side=tk.LEFT, padx=5)
+        # Right Frame Content
+        description_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vitae augue vitae ante feugiat placerat. Quisque pretium, nulla nec laoreet accumsan, nisl ante rhoncus ante, elementum tincidunt augue lacus posuere."
+        description_label = tk.Label(right_frame, text=description_text, wraplength=300, justify="left", fg="black", bg="white", font=("Arial", 10))
+        description_label.pack(anchor="w", pady=(0, 10))
 
-        # --- Right Frame Content ---
-        rebuiltLabel = tk.Label(
-            rightFrame,
-            text="Rebuilt",
-            font=("Helvetica", 20, "bold"),
-            bg="#FFFFFF",
-            fg="#000000",
-        )
-        rebuiltLabel.pack(anchor="e", pady=(10, 5))
-
-        # Task Description
-        descLabel = tk.Label(
-            rightFrame,
-            text=tugas.descTugas,
-            font=("Helvetica", 12),
-            wraplength=400,
-            justify="left",
-            bg="#FFFFFF",
-        )
-        descLabel.pack(anchor="e", pady=5, padx=30)
-
-        # Total Cost
-        totalCostFrame = tk.Frame(rightFrame, bg="#FFFFFF")
-        totalCostFrame.pack(anchor="e", pady=5)
-
-        totalCostLabel = tk.Label(
-            totalCostFrame,
-            text="Total Pengeluaran:",
-            font=("Helvetica", 12, "bold"),
-            bg="#FFFFFF",
-        )
-        totalCostLabel.pack(side=tk.LEFT, padx=5)
-
-        totalCostValue = tk.Label(
-            totalCostFrame,
-            text=f"Rp{tugas.biayaTugas:,.2f}",
-            font=("Helvetica", 20, "bold"),
-            fg="#4966FF",
-            bg="#FFFFFF",
-        )
-        totalCostValue.pack(side=tk.LEFT, padx=30, pady=(50, 5))
-
-        # Task Status
-        # Task Status
-        status = tugas.getStatusTugas()
-        imageFile = "img/complete.png" if status.lower() == 'done' else "img/onprogress.png"
-
-        # Ensure the PhotoImage instance is saved as an instance variable to prevent garbage collection
-        self.gambarTugas = tk.PhotoImage(file=imageFile)
-
-        statusButton = tk.Button(
-            rightFrame,
-            image=self.gambarTugas,  # Assign the image
-            borderwidth=0,
-            padx=10,
-            pady=5,
-            relief="flat",
-            cursor="hand2",
-        )
-        statusButton.pack(anchor="e", pady=5, padx=30)
+        status_label = tk.Label(right_frame, text="On Progress", fg="black", bg="lightgreen", font=("Arial", 10, "bold"), padx=10)
+        status_label.pack(anchor="w")
 
 
         # Create the bottom frame for DisplayBiaya
         bottomFrame = tk.Frame(taskDetailFrame, bg="#FFEEDD")
-        bottomFrame.grid(row=1, column=0, columnspan=2, sticky="nsew")  # Use grid to span across columns
-
-        # Configure row and column weights to allow resizing
-        taskDetailFrame.rowconfigure(1, weight=1)
-        taskDetailFrame.columnconfigure(0, weight=1)
+        bottomFrame.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
         # Load DisplayBiaya for the specific tugas
         self.load_display_biaya(bottomFrame)
