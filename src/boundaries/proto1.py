@@ -47,7 +47,7 @@ class ProjectUI:
             biaya_frame,
             text="Biaya",
             font=("Helvetica", 18, "bold"),
-            text_color="#8B0000"  # Warna merah tua
+            text_color="black"  # Warna merah tua
         )
         label_biaya.place(relx=0.05, rely=0.04)
 
