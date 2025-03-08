@@ -1,4 +1,4 @@
-# IF2110 - Algoritma dan Struktur Data 2024
+# IF2150 - Rekayasa Perangkat Lunak 2024
 > Tugas Besar - IF2150 Rekayasa Perangkat Lunak 2024
 
 ## Kelompok 09
